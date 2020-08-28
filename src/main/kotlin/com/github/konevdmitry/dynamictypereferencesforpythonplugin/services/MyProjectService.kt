@@ -1,7 +1,7 @@
 package com.github.konevdmitry.dynamictypereferencesforpythonplugin.services
 
-import com.intellij.openapi.project.Project
 import com.github.konevdmitry.dynamictypereferencesforpythonplugin.MyBundle
+import com.intellij.openapi.project.Project
 
 class MyProjectService(project: Project) {
 

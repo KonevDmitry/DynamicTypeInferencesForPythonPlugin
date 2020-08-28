@@ -3,6 +3,12 @@ import org.jetbrains.changelog.closure
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+buildscript {
+    repositories {
+        maven("https://oss.sonatype.org/content/repositories/snapshots/")
+        maven("https://dl.bintray.com/jetbrains/intellij-plugin-service")
+    }
+}
 plugins {
     // Java support
     id("java")
@@ -36,7 +42,12 @@ version = pluginVersion
 repositories {
     mavenCentral()
     jcenter()
+    maven("https://repo.gradle.org/gradle/libs-releases-local/")
+    maven("https://jetbrains.bintray.com/intellij-third-party-dependencies")
 }
+
+apply(plugin = "org.jetbrains.intellij")
+
 dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.11.0")
 }
@@ -49,7 +60,6 @@ intellij {
     type = platformType
     downloadSources = platformDownloadSources.toBoolean()
     updateSinceUntilBuild = true
-
 //  Plugin Dependencies:
 //  https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_dependencies.html
 //
@@ -96,7 +106,6 @@ tasks {
                 File("./README.md").readText().lines().run {
                     val start = "<!-- Plugin description -->"
                     val end = "<!-- Plugin description end -->"
-
                     if (!containsAll(listOf(start, end))) {
                         throw GradleException("Plugin description section not found in README.md file:\n$start ... $end")
                     }
