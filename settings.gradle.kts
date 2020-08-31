@@ -1,1 +1,1 @@
-rootProject.name = "DynamicTypeReferencesForPythonPlugin"
+rootProject.name = "DynamicTypeInferencesForPythonPlugin"

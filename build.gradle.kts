@@ -34,6 +34,9 @@ val pluginUntilBuild: String by project
 val platformType: String by project
 val platformVersion: String by project
 val platformDownloadSources: String by project
+val pythonVersion: String by project
+val psiViewerVersion: String by project
+val env: String? = System.getenv("CONNOTATOR_ENV")
 
 group = pluginGroup
 version = pluginVersion
@@ -46,9 +49,9 @@ repositories {
     maven("https://jetbrains.bintray.com/intellij-third-party-dependencies")
 }
 
-apply(plugin = "org.jetbrains.intellij")
-
+//apply(plugin = "org.jetbrains.intellij")
 dependencies {
+    implementation("org.junit.jupiter:junit-jupiter:5.4.2")
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.11.0")
 }
 
@@ -60,6 +63,17 @@ intellij {
     type = platformType
     downloadSources = platformDownloadSources.toBoolean()
     updateSinceUntilBuild = true
+
+//    val plugins = arrayOf("PythonCore:$pythonVersion")
+//    val devPlugins = arrayOf("PsiViewer:$psiViewerVersion")
+//
+//    val pluginsToApply = plugins.let {
+//        if (env == "DEV")it.plus(devPlugins) else it
+//    }
+//
+//    setPlugins(*pluginsToApply)
+
+
 //  Plugin Dependencies:
 //  https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_dependencies.html
 //
