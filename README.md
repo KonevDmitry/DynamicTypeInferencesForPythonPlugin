@@ -63,7 +63,7 @@ Plugin based on the [IntelliJ Platform Plugin Template][template].
 
 ## Embeddings for code
 
-1. [Learning and Evaluating Contextual Embedding of Source Code (CuBERT)](https://arxiv.org/abs/1802.05365)
+1. [Learning and Evaluating Contextual Embedding of Source Code (CuBERT)](https://arxiv.org/abs/2001.00059)
 2. [CodeBERT: A Pre-Trained Model for Programming and Natural Languages](https://arxiv.org/abs/2002.08155)
 3. [A Literature Study Of Embeddings On Source Code](https://arxiv.org/abs/1904.03061v1)
 4. [Contrastive Code Representation Learning](https://arxiv.org/abs/2007.04973)
