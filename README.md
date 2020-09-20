@@ -39,3 +39,38 @@ To keep everything working, do not remove `<!-- ... -->` sections.
 Plugin based on the [IntelliJ Platform Plugin Template][template].
 
 [template]: https://github.com/JetBrains/intellij-platform-plugin-template
+
+
+
+# Papers
+
+## Grapphs and GNN based models
+1. [Typilus: Neural Type Hints](https://arxiv.org/abs/2004.10657)
+2. [Lambdanet: Probabilistic Type Inference Using Graph Neural Networks](https://openreview.net/forum?id=Hkx6hANtwH)
+3. [Inferring Javascript Types Using Graph Neural Networks](https://arxiv.org/abs/1905.06707)
+### Probabalistic 
+4.1. [Advanced Graph-Based Deep Learning for Probabilistic Type Inference](https://arxiv.org/abs/2009.05949)
+4.2. [Python Probabilistic Type Inference with Natural Language Support](https://dl.acm.org/doi/10.1145/2950290.2950343)
+4.3. [OptTyper: Probabilistic Type Inference by Optimising Logical and Natural Constraints ](https://arxiv.org/abs/2004.00348)
+5. [Hoppity: Learning Graph Transformations To Detect And Fix Bugs In Programs](https://openreview.net/forum?id=SJeqs6EFvB) (Not Type Inference per se, but is related)
+
+## Embedding + NonGraph NN models
+
+1. [NL2Type: Inferring JavaScript Function Types from Natural Language Information](https://ieeexplore.ieee.org/document/8811893)
+2. [Deep Learning Type Inference](https://vhellendoorn.github.io/PDF/fse2018-j2t.pdf)
+3. [TypeWriter: Neural Type Prediction with Search-based Validation](https://arxiv.org/abs/1912.03768)
+4. [DLTPy: Deep Learning Type Inference Of Python Function Signatures Using Natural Language Context](https://arxiv.org/abs/1912.00680)
+
+## Embeddings for code
+
+1. [Learning and Evaluating Contextual Embedding of Source Code (CuBERT)](https://arxiv.org/abs/1802.05365)
+2. [CodeBERT: A Pre-Trained Model for Programming and Natural Languages](https://arxiv.org/abs/2002.08155)
+3. [A Literature Study Of Embeddings On Source Code](https://arxiv.org/abs/1904.03061v1)
+4. [Contrastive Code Representation Learning](https://arxiv.org/abs/2007.04973)
+
+
+
+
+
+
+
