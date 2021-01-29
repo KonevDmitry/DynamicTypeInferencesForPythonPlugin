@@ -11,18 +11,17 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.jetbrains.python.PythonFileType;
+import com.jetbrains.python.psi.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class CodeGetter extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
-        final StringBuilder fullCode = new StringBuilder();
+        final Map<String, String> functionCodeMap = new HashMap<>();
+        StringBuilder fullCode = new StringBuilder();
         Project project = Objects.requireNonNull(anActionEvent.getProject());
         Editor editor = anActionEvent.getData(CommonDataKeys.EDITOR);
         PsiFile psiFile = anActionEvent.getData(CommonDataKeys.PSI_FILE);
@@ -50,14 +49,29 @@ public class CodeGetter extends AnAction {
                             .forEach(this::processFile);
                 } else if (fileInProject.getFileType().getClass().equals(PythonFileType.class)) {
                     PsiFile innerFile = Objects.requireNonNull(PsiManager.getInstance(project).findFile(fileInProject));
-                    fullCode.append(innerFile.getText()).append("\n\n");
+
+                    PyRecursiveElementVisitor visitor = new PyRecursiveElementVisitor() {
+                        @Override
+                        public void visitPyFunction(PyFunction node) {
+                            String nodeText = node.getText().concat("\n\n");
+                            fullCode.append(nodeText);
+                            String key = Objects.requireNonNull(node
+                                    .getContainingFile()
+                                    .getVirtualFile()
+                                    .getCanonicalPath())
+                                    .concat(":")
+                                    .concat(Objects.requireNonNull(node.getNameNode()).getText());
+                            functionCodeMap.put(key, nodeText);
+                            super.visitPyFunction(node);
+                        }
+                    };
+                    innerFile.accept(visitor);
                     return true;
                 }
                 return false;
             }
-
         });
-
+        System.out.println(functionCodeMap);
         Messages.showMessageDialog(anActionEvent.getProject(), fullCode.toString(), "PSI Info", null);
     }
 
