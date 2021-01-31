@@ -1,38 +1,36 @@
-package dynamic.type.references;
+package Handlers;
 
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.codeInsight.editorActions.TypedHandlerDelegate;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ContentIterator;
 import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.jetbrains.python.PythonFileType;
-import com.jetbrains.python.psi.*;
+import com.jetbrains.python.psi.PyFunction;
+import com.jetbrains.python.psi.PyRecursiveElementVisitor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public class CodeGetter extends AnAction {
+public class KeyHandler extends TypedHandlerDelegate {
 
+    @NotNull
     @Override
-    public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
+    public Result charTyped(char c, @NotNull Project project, @NotNull Editor editor,
+                                  @NotNull PsiFile psiFile) {
+
         final Map<String, String> functionCodeMap = new HashMap<>();
         StringBuilder fullCode = new StringBuilder();
-        Project project = Objects.requireNonNull(anActionEvent.getProject());
-        Editor editor = anActionEvent.getData(CommonDataKeys.EDITOR);
-        PsiFile psiFile = anActionEvent.getData(CommonDataKeys.PSI_FILE);
-        if (editor == null || psiFile == null) {
-            return;
-        }
+
         List<String> blackList = new ArrayList<String>() {{
             add("venv");
             add("idea");
         }};
-
 
         ProjectFileIndex.SERVICE.getInstance(project).iterateContent(new ContentIterator() {
             @Override
@@ -50,19 +48,25 @@ public class CodeGetter extends AnAction {
                 } else if (fileInProject.getFileType().getClass().equals(PythonFileType.class)) {
                     PsiFile innerFile = Objects.requireNonNull(PsiManager.getInstance(project).findFile(fileInProject));
 
+                    PsiDocumentManager documentManager = PsiDocumentManager.getInstance(project);
+                    Document docFile = documentManager.getDocument(psiFile);
+                    documentManager.commitDocument(Objects.requireNonNull(docFile));
+
                     PyRecursiveElementVisitor visitor = new PyRecursiveElementVisitor() {
                         @Override
-                        public void visitPyFunction(PyFunction node) {
+                        public void visitPyFunction(@NotNull PyFunction node) {
                             String nodeText = node.getText().concat("\n\n");
                             fullCode.append(nodeText);
-                            String key = Objects.requireNonNull(node
-                                    .getContainingFile()
-                                    .getVirtualFile()
-                                    .getCanonicalPath())
-                                    .concat(":")
-                                    .concat(Objects.requireNonNull(node.getNameNode()).getText());
-                            functionCodeMap.put(key, nodeText);
-                            super.visitPyFunction(node);
+                            if (node.getName() != null) {
+                                String key = Objects.requireNonNull(node
+                                        .getContainingFile()
+                                        .getVirtualFile()
+                                        .getCanonicalPath())
+                                        .concat(":")
+                                        .concat(Objects.requireNonNull(node.getNameNode()).getText());
+                                functionCodeMap.put(key, nodeText);
+                                super.visitPyFunction(node);
+                            }
                         }
                     };
                     innerFile.accept(visitor);
@@ -72,14 +76,7 @@ public class CodeGetter extends AnAction {
             }
         });
         System.out.println(functionCodeMap);
-        Messages.showMessageDialog(anActionEvent.getProject(), fullCode.toString(), "PSI Info", null);
-    }
-
-    @Override
-    public void update(AnActionEvent e) {
-        Editor editor = e.getData(CommonDataKeys.EDITOR);
-        PsiFile psiFile = e.getData(CommonDataKeys.PSI_FILE);
-        e.getPresentation().setEnabled(editor != null && psiFile != null);
+        return Result.CONTINUE;
     }
 
 }
