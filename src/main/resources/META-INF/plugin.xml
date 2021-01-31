@@ -5,7 +5,7 @@
     <depends>com.intellij.modules.python</depends>
     <depends>com.intellij.modules.lang</depends>
 
-    <vendor>FuckingDiploma</vendor>
+    <vendor>DynamicInference</vendor>
     <version>0.0.1</version>
     <!-- Product and plugin compatibility requirements -->
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
@@ -13,24 +13,8 @@
 
     <idea-version since-build="183.0" until-build="203.*"/>
     <extensions defaultExtensionNs="com.intellij">
-        <lang.inspectionSuppressor language="Python" implementationClass="dynamic.type.references.FlakeInspectionSuppressor" />
+<!--        <lang.inspectionSuppressor language="Python" implementationClass="dynamic.type.inferences.FlakeInspectionSuppressor" />-->
+        <typedHandler implementation="Handlers.KeyHandler"/>
     </extensions>
 
-    <actions>
-        <action class="dynamic.type.references.CodeGetter" id="CodeGetter"
-                text="PSI Navigation Demo...">
-            <add-to-group group-id="ToolsMenu" anchor="last"/>
-        </action>
-    </actions>
-
-
-    <!--    <extensions defaultExtensionNs="com.intellij">-->
-    <!--        <applicationService serviceImplementation="dynamic.type.references.services.MyApplicationService"/>-->
-    <!--        <projectService serviceImplementation="dynamic.type.references.services.MyProjectService"/>-->
-    <!--    </extensions>-->
-
-    <!--    <projectListeners>-->
-    <!--        <listener class="dynamic.type.references.listeners.MyProjectManagerListener"-->
-    <!--                  topic="com.intellij.openapi.project.ProjectManagerListener"/>-->
-    <!--    </projectListeners>-->
 </idea-plugin>
