@@ -1,4 +1,4 @@
-package Handlers;
+package dynamic.type.inferences.handlers;
 
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate;
 import com.intellij.openapi.editor.Document;
@@ -7,24 +7,25 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ContentIterator;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
+import com.intellij.psi.*;
+
 import com.jetbrains.python.PythonFileType;
 import com.jetbrains.python.psi.PyFunction;
 import com.jetbrains.python.psi.PyRecursiveElementVisitor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.List;
 
 public class KeyHandler extends TypedHandlerDelegate {
 
-    @NotNull
-    @Override
-    public Result charTyped(char c, @NotNull Project project, @NotNull Editor editor,
-                                  @NotNull PsiFile psiFile) {
+    private final Map<String, String> functionCodeMap = new HashMap<>();
 
-        final Map<String, String> functionCodeMap = new HashMap<>();
+    public Map<String, String> getFunctionCodeMap() {
+        return functionCodeMap;
+    }
+
+    public StringBuilder getAllFunctionCode(Project project, PsiFile psiFile) {
         StringBuilder fullCode = new StringBuilder();
 
         List<String> blackList = new ArrayList<String>() {{
@@ -45,7 +46,7 @@ public class KeyHandler extends TypedHandlerDelegate {
                                                             .getCanonicalPath())
                                                     .endsWith(entry)))
                             .forEach(this::processFile);
-                } else if (fileInProject.getFileType().getClass().equals(PythonFileType.class)) {
+                } else if (fileInProject.getFileType() instanceof PythonFileType) {
                     PsiFile innerFile = Objects.requireNonNull(PsiManager.getInstance(project).findFile(fileInProject));
 
                     PsiDocumentManager documentManager = PsiDocumentManager.getInstance(project);
@@ -68,6 +69,16 @@ public class KeyHandler extends TypedHandlerDelegate {
                                 super.visitPyFunction(node);
                             }
                         }
+//                        @Override
+//                        public void visitElement(PsiElement element){
+//                            // вот тут подумать, как доставать все функции, которые не def
+////                            MethodCallExpression callExpression = new MethodCallExpression();
+//                            //P.S ну рекурсия, да, а чё ещё
+//                            for(PsiElement elem: element.getChildren()){
+//                                System.out.println(elem.getText()+"sacs"+elem.getNode());
+//
+//                            }
+//                        }
                     };
                     innerFile.accept(visitor);
                     return true;
@@ -75,8 +86,18 @@ public class KeyHandler extends TypedHandlerDelegate {
                 return false;
             }
         });
-        System.out.println(functionCodeMap);
+        return fullCode;
+    }
+
+    @NotNull
+    @Override
+    public Result charTyped(char c, @NotNull Project project, @NotNull Editor editor,
+                            @NotNull PsiFile psiFile) {
+        StringBuilder fullFunctionCode = getAllFunctionCode(project, psiFile);
+        System.out.println(fullFunctionCode);
+
         return Result.CONTINUE;
     }
+
 
 }

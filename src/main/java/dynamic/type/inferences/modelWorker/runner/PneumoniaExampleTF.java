@@ -1,3 +1,5 @@
+package dynamic.type.inferences.modelWorker.runner;
+
 import ai.djl.ModelException;
 import ai.djl.inference.Predictor;
 import ai.djl.modality.Classifications;

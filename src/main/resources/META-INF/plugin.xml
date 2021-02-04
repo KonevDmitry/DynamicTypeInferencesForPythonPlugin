@@ -13,8 +13,15 @@
 
     <idea-version since-build="183.0" until-build="203.*"/>
     <extensions defaultExtensionNs="com.intellij">
-<!--        <lang.inspectionSuppressor language="Python" implementationClass="dynamic.type.inferences.FlakeInspectionSuppressor" />-->
-        <typedHandler implementation="Handlers.KeyHandler"/>
+        <!--        <lang.inspectionSuppressor language="Python" implementationClass="dynamic.type.inferences.FlakeInspectionSuppressor" />-->
+
+
+        <copyPastePostProcessor implementation="dynamic.type.inferences.handlers.CopyPasteHandler"/>
+        <editorActionHandler implementationClass="dynamic.type.inferences.handlers.BackSpaceHandler" action="EditorBackSpace"/>
+        <editorActionHandler implementationClass="dynamic.type.inferences.handlers.EnterHandler" action="EditorEnter"/>
+        <editorActionHandler implementationClass="dynamic.type.inferences.handlers.DeleteHandler" action="EditorDelete"/>
+        <editorActionHandler implementationClass="dynamic.type.inferences.handlers.TabHandler" action="EditorTab"/>
+        <typedHandler implementation="dynamic.type.inferences.handlers.KeyHandler"/>
     </extensions>
 
 </idea-plugin>

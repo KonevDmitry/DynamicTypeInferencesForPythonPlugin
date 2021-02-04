@@ -1,3 +1,5 @@
+package dynamic.type.inferences.modelWorker.runner;
+
 import ai.djl.*;
 import ai.djl.engine.Engine;
 import ai.djl.basicdataset.CsvDataset;
@@ -18,7 +20,6 @@ import ai.djl.nn.core.Linear;
 import ai.djl.nn.norm.Dropout;
 import ai.djl.repository.zoo.*;
 import ai.djl.training.*;
-import ai.djl.training.dataset.Batch;
 import ai.djl.training.dataset.RandomAccessDataset;
 import ai.djl.training.evaluator.Accuracy;
 import ai.djl.training.listener.CheckpointsTrainingListener;

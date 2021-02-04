@@ -1,4 +1,4 @@
 .gradle
 .idea
 build
-./bertChecking/sources/
+src/main/resources/model

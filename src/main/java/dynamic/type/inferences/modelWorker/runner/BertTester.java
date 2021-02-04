@@ -1,5 +1,6 @@
+package dynamic.type.inferences.modelWorker.runner;
+
 import ai.djl.Application;
-import ai.djl.Device;
 import ai.djl.ModelException;
 import ai.djl.inference.Predictor;
 import ai.djl.modality.nlp.qa.QAInput;
