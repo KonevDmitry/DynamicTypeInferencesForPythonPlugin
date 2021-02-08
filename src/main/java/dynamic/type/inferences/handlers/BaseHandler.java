@@ -10,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 public class BaseHandler {
-    private KeyHandler keyHandler = new KeyHandler();
     public BaseHandler() {
     }
 

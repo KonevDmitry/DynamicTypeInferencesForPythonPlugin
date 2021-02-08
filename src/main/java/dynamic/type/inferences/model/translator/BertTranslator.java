@@ -1,4 +1,4 @@
-package dynamic.type.inferences.modelWorker.translator;
+package dynamic.type.inferences.model.translator;
 
 import ai.djl.Model;
 import ai.djl.modality.Classifications;
@@ -23,34 +23,19 @@ import java.util.stream.Collectors;
 public class BertTranslator implements Translator<String, Classifications> {
 
     private final BertFullTokenizer tokenizer;
-    private SimpleVocabulary vocab;
+    private final SimpleVocabulary vocab;
     private final List<String> ranks;
-    private final String vocabularyPath;
 
-    public BertTranslator(BertFullTokenizer tokenizer, String vocabularyPath) {
+    public BertTranslator(BertFullTokenizer tokenizer) {
         this.tokenizer = tokenizer;
-        vocab = tokenizer.getVocabulary();
-        ranks = Arrays.asList("Negative", "Neutral", "Positive");
-        this.vocabularyPath = vocabularyPath;
+        this.vocab = tokenizer.getVocabulary();
+        //TODO: get ranks for our own model
+        this.ranks = Arrays.asList("Negative", "Neutral", "Positive");
     }
 
     @Override
     public Batchifier getBatchifier() {
         return new StackBatchifier();
-    }
-
-    @Override
-    public void prepare(NDManager manager, Model model) throws IOException {
-
-        BufferedReader br = new BufferedReader(new FileReader(vocabularyPath));
-
-        vocab = SimpleVocabulary.builder()
-                .optMinFrequency(1)
-                .add(br
-                        .lines()
-                        .collect(Collectors.toList()))
-                .optUnknownToken("[UNK]")
-                .build();
     }
 
 //    @Override
@@ -65,15 +50,15 @@ public class BertTranslator implements Translator<String, Classifications> {
 //        return new NDList(ctx.getNDManager().create(indices, new Shape()));
 //    }
 
-    //TODO: There are example in another classes (like SimpleText2TextTranslator). Look at example and change code below
     @Override
     public NDList processInput(TranslatorContext ctx, String input) {
         List<String> tokens = tokenizer.tokenize(input);
-        int[] indices = tokens.stream().mapToInt(token -> (int) vocab.getIndex(token)).toArray();
-        int[] attentionMask = new int[tokens.size()];
+        long[] indices = tokens.stream().mapToLong(vocab::getIndex).toArray();
+        long[] attentionMask = new long[tokens.size()];
         Arrays.fill(attentionMask, 1);
         NDManager manager = ctx.getNDManager();
-        NDArray indicesArray = manager.create(indices, new Shape());
+//        NDArray indicesArray = manager.create(indices, new Shape());
+        NDArray indicesArray = manager.create(indices);
         NDArray attentionMaskArray = manager.create(attentionMask);
         return new NDList(indicesArray, attentionMaskArray);
     }

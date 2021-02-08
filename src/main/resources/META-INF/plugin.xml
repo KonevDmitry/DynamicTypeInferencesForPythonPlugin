@@ -22,6 +22,6 @@
         <editorActionHandler implementationClass="dynamic.type.inferences.handlers.DeleteHandler" action="EditorDelete"/>
         <editorActionHandler implementationClass="dynamic.type.inferences.handlers.TabHandler" action="EditorTab"/>
         <typedHandler implementation="dynamic.type.inferences.handlers.KeyHandler"/>
+        <preloadingActivity implementation="dynamic.type.inferences.StartUpActive"/>
     </extensions>
-
 </idea-plugin>

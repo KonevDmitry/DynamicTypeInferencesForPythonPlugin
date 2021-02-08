@@ -1,6 +1,7 @@
-package dynamic.type.inferences.modelWorker.runner;
+package dynamic.type.inferences.model.runner;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.*;
@@ -106,7 +107,7 @@ public class BertQAMXNet {
             URL url = Paths.get(file).toUri().toURL();
             try (InputStream is = url.openStream();
                  Reader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
-                return JsonUtils.GSON.fromJson(reader, VocabParser.class).idx2token;
+                return JsonUtils.GSON.fromJson(reader, (Type) VocabParser.class);
             } catch (IOException e) {
                 throw new IllegalArgumentException("Invalid url: " + url, e);
             }

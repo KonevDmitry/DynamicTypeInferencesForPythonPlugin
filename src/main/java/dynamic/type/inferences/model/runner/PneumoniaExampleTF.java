@@ -1,4 +1,4 @@
-package dynamic.type.inferences.modelWorker.runner;
+package dynamic.type.inferences.model.runner;
 
 import ai.djl.ModelException;
 import ai.djl.inference.Predictor;
