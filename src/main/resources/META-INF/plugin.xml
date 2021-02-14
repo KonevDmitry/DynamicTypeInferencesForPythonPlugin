@@ -1,10 +1,10 @@
+<!--<depends>ai.djl.engine</depends>-->
 <idea-plugin>
     <id>com.github.konevdmitry.dynamictypereferencesforpythonplugin</id>
     <name>DynamicTypeReferences</name>
 
     <depends>com.intellij.modules.python</depends>
     <depends>com.intellij.modules.lang</depends>
-
     <vendor>DynamicInference</vendor>
     <version>0.0.1</version>
     <!-- Product and plugin compatibility requirements -->
@@ -23,5 +23,11 @@
         <editorActionHandler implementationClass="dynamic.type.inferences.handlers.TabHandler" action="EditorTab"/>
         <typedHandler implementation="dynamic.type.inferences.handlers.KeyHandler"/>
         <preloadingActivity implementation="dynamic.type.inferences.StartUpActive"/>
+
+        <completion.contributor implementationClass="dynamic.type.inferences.completer.PyVarsForFuncCompleter"
+        language="Python"
+        order="first"
+        />
+
     </extensions>
 </idea-plugin>

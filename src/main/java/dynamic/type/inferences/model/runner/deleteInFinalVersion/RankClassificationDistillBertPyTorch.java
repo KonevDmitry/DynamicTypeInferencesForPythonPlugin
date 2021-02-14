@@ -1,4 +1,4 @@
-package dynamic.type.inferences.model.runner;
+package dynamic.type.inferences.model.runner.deleteInFinalVersion;
 
 import ai.djl.*;
 import ai.djl.engine.Engine;

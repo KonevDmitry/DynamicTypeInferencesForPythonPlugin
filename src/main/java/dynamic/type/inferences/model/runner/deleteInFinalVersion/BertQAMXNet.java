@@ -1,4 +1,4 @@
-package dynamic.type.inferences.model.runner;
+package dynamic.type.inferences.model.runner.deleteInFinalVersion;
 
 import java.io.*;
 import java.lang.reflect.Type;

@@ -1,43 +1,68 @@
 package dynamic.type.inferences.model.runner;
 
 import ai.djl.*;
-import ai.djl.basicdataset.CsvDataset;
-import ai.djl.engine.Engine;
 import ai.djl.inference.Predictor;
 import ai.djl.modality.Classifications;
 import ai.djl.modality.nlp.SimpleVocabulary;
 import ai.djl.modality.nlp.bert.BertFullTokenizer;
-import ai.djl.pytorch.engine.PtEngine;
 import ai.djl.repository.zoo.*;
 import ai.djl.training.util.ProgressBar;
 import ai.djl.translate.*;
 
 import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.dropbox.core.DbxException;
+import com.intellij.ide.plugins.IdeaPluginDescriptor;
+import com.intellij.ide.plugins.PluginManager;
+import com.intellij.openapi.application.PathManager;
+import com.intellij.openapi.extensions.PluginId;
+import dynamic.type.inferences.model.loader.BertModelLoader;
 import dynamic.type.inferences.model.translator.BertTranslator;
+
 
 public class TorchBert {
     private static Predictor<String, Classifications> predictor;
+    private final Object sharedObject = new Object();
 
-    public TorchBert() throws MalformedModelException, ModelNotFoundException, IOException {
-        modelInit();
+    private final BertModelLoader loader = new BertModelLoader(sharedObject);
+
+    public TorchBert() {
+        ClassLoader current = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+        } finally {
+            Thread.currentThread().setContextClassLoader(current);
+        }
     }
 
-    public static void modelInit() throws IOException, MalformedModelException, ModelNotFoundException {
-        Engine.debugEnvironment();
-        String modelUrl = "file:///home/dmitry/IdeaProjects/DynamicTypeInferencesForPythonPlugin/src/main/resources/data/torchBERT/torchBertModel.zip?artifact_id=distiled&model_name=eeee";
-        String vocabularyPath = "/home/dmitry/IdeaProjects/DynamicTypeInferencesForPythonPlugin/src/main/resources/data/torchBERT/vocab.txt";
-//        InputStream vocabularyPath = getClass().getResourceAsStream("/data/torchBERT/vocab.txt");
-//        Engine.debugEnvironment();
-//        System.out.println(Engine.getAllEngines());
-        BufferedReader br = new BufferedReader(new FileReader(vocabularyPath));
+    public synchronized void modelInit() throws IOException, MalformedModelException, ModelNotFoundException, URISyntaxException, DbxException, InterruptedException {
+        URL urlVocab = getClass().getClassLoader().getResource("/data/torchBERT/vocab.txt");
+        String modelPath = PathManager.getConfigPath() + "/eeee.pt";
+        File modelFile = new File(modelPath);
+        if (modelFile.exists())
+            createPredictor(urlVocab, modelPath);
+        else {
+            loader.loadTo(modelPath);
+            synchronized (sharedObject) {
+                createPredictor(urlVocab, modelPath);
+            }
+        }
+    }
+
+    public void createPredictor(URL url, String path) throws IOException, ModelNotFoundException, MalformedModelException {
+        BufferedReader brVocab = new BufferedReader(
+                new InputStreamReader(
+                        Objects.requireNonNull(url).openStream()));
+
         SimpleVocabulary vocabulary = SimpleVocabulary.builder()
                 .optMinFrequency(1)
-                .add(br
+                .add(brVocab
                         .lines()
                         .collect(Collectors.toList()))
                 .optUnknownToken("[UNK]")
@@ -46,41 +71,36 @@ public class TorchBert {
         BertFullTokenizer tokenizer = new BertFullTokenizer(vocabulary, true);
         BertTranslator translator = new BertTranslator(tokenizer);
 
-        // Taking only by CPU because not all users will have GPU
-        // This setting is also set at configs
         Criteria<String, Classifications> criteria =
                 Criteria.builder()
-                        .optApplication(Application.NLP.TEXT_CLASSIFICATION)
+                        .optApplication(Application.NLP.SENTIMENT_ANALYSIS)
                         .optDevice(Device.cpu())
                         .setTypes(String.class, Classifications.class)
-                        .optModelUrls(modelUrl)
+                        .optModelUrls(path)
                         .optTranslator(translator)
                         .optProgress(new ProgressBar())
                         .build();
 
-        System.out.println(ModelZoo.listModels());
         ZooModel<String, Classifications> model = ModelZoo.loadModel(criteria);
         predictor = model.newPredictor(translator);
-
     }
+//    public void main(String[] args) throws IOException, ModelException, TranslateException {
+//        modelInit();
+//
+//        List<String> inputs = new ArrayList<>();
+//        inputs.add("Sample input");
+//        inputs.add("I love you, DJL!");
+//        inputs.add("I hate everything");
+//        inputs.add("DJL is awesome. This is amazing");
+//
+//        ArrayList<Classifications> results = predict(inputs);
+//        for (int i = 0; i < inputs.size(); i++) {
+//            System.out.println("Prediction for: " + inputs.get(i) + "\n" + results.get(i).toString());
+//        }
+//
+//    }
 
-    public static void main(String[] args) throws IOException, ModelException, TranslateException {
-        modelInit();
-
-        List<String> inputs = new ArrayList<>();
-        inputs.add("Sample input");
-        inputs.add("I love you, DJL!");
-        inputs.add("I hate everything");
-        inputs.add("DJL is awesome. This is amazing");
-
-        ArrayList<Classifications> results = predict(inputs);
-        for (int i = 0; i < inputs.size(); i++) {
-            System.out.println("Prediction for: " + inputs.get(i) + "\n" + results.get(i).toString());
-        }
-
-    }
-
-    public static ArrayList<Classifications> predict(List<String> inputs)
+    public ArrayList<Classifications> predict(List<String> inputs)
             throws MalformedModelException, ModelNotFoundException, IOException,
             TranslateException {
 

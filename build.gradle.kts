@@ -63,6 +63,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.3.9")
 
+    implementation("org.apache.directory.studio:org.apache.commons.io:2.4")
+
     implementation("ai.djl:api:0.9.0")
     implementation("ai.djl:basicdataset:0.9.0")
     // MXNet
@@ -79,6 +81,9 @@ dependencies {
     implementation("ai.djl.pytorch:pytorch-engine:0.9.0")
     runtimeOnly("ai.djl.pytorch:pytorch-native-cpu:1.7.1")
     implementation("ai.djl.pytorch:pytorch-model-zoo:0.9.0")
+
+//    implementation("com.dropbox.core:sdk:1.6-beta-1")
+    implementation("com.dropbox.core:dropbox-core-sdk:3.1.5")
 }
 
 intellij {

@@ -1,8 +1,5 @@
 package dynamic.type.inferences.handlers;
 
-import ai.djl.MalformedModelException;
-import ai.djl.repository.zoo.ModelNotFoundException;
-import ai.djl.translate.TranslateException;
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -12,25 +9,32 @@ import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.jetbrains.python.PythonFileType;
-import com.jetbrains.python.psi.PyFunction;
-import com.jetbrains.python.psi.PyRecursiveElementVisitor;
-import dynamic.type.inferences.model.runner.TorchBert;
+import com.jetbrains.python.psi.PyTargetExpression;
+import dynamic.type.inferences.visitors.AllUserFunctionsVisitor;
+import dynamic.type.inferences.visitors.VariablesVisitor;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
 public class KeyHandler extends TypedHandlerDelegate {
+    private final StringBuilder allFullCode = new StringBuilder();
+    private final Map<String, String> allFunctionCodeMap = new HashMap<>();
+    private final Map<String, PyTargetExpression> allVariablesMap = new HashMap<>();
 
-    private final Map<String, String> functionCodeMap = new HashMap<>();
-
-    public Map<String, String> getFunctionCodeMap() {
-        return functionCodeMap;
+    public StringBuilder getAllFullCode() {
+        return allFullCode;
     }
 
-    public StringBuilder getAllFunctionCode(Project project, PsiFile psiFile) {
-        StringBuilder fullCode = new StringBuilder();
+    public Map<String, String> getAllFunctionCodeMap() {
+        return allFunctionCodeMap;
+    }
+
+    public Map<String, PyTargetExpression> getAllVariablesMap() {
+        return allVariablesMap;
+    }
+
+    public StringBuilder getData(Project project, PsiFile psiFile) {
 
         List<String> blackList = new ArrayList<String>() {{
             add("venv");
@@ -56,48 +60,27 @@ public class KeyHandler extends TypedHandlerDelegate {
                     PsiDocumentManager documentManager = PsiDocumentManager.getInstance(project);
                     Document docFile = documentManager.getDocument(psiFile);
                     documentManager.commitDocument(Objects.requireNonNull(docFile));
+                    AllUserFunctionsVisitor functionsVisitor = new AllUserFunctionsVisitor();
+                    VariablesVisitor variablesVisitor = new VariablesVisitor();
+                    innerFile.accept(functionsVisitor);
+                    innerFile.accept(variablesVisitor);
 
-                    PyRecursiveElementVisitor visitor = new PyRecursiveElementVisitor() {
-                        @Override
-                        public void visitPyFunction(@NotNull PyFunction node) {
-                            String nodeText = node.getText().concat("\n\n");
-                            fullCode.append(nodeText);
-                            if (node.getName() != null) {
-                                String key = Objects.requireNonNull(node
-                                        .getContainingFile()
-                                        .getVirtualFile()
-                                        .getCanonicalPath())
-                                        .concat(":")
-                                        .concat(Objects.requireNonNull(node.getNameNode()).getText());
-                                functionCodeMap.put(key, nodeText);
-                                super.visitPyFunction(node);
-                            }
-                        }
-//                        @Override
-//                        public void visitElement(PsiElement element){
-//                            // вот тут подумать, как доставать все функции, которые не def
-////                            MethodCallExpression callExpression = new MethodCallExpression();
-//                            //P.S ну рекурсия, да, а чё ещё
-//                            for(PsiElement elem: element.getChildren()){
-//                                System.out.println(elem.getText()+"sacs"+elem.getNode());
-//
-//                            }
-//                        }
-                    };
-                    innerFile.accept(visitor);
+                    allFullCode.append(functionsVisitor.getFullCode());
+                    allFunctionCodeMap.putAll(functionsVisitor.getFunctionCodeMap());
+                    allVariablesMap.putAll(variablesVisitor.getVariablesMap());
                     return true;
                 }
                 return false;
             }
         });
-        return fullCode;
+        return allFullCode;
     }
 
     @NotNull
     @Override
     public Result charTyped(char c, @NotNull Project project, @NotNull Editor editor,
                             @NotNull PsiFile psiFile) {
-        StringBuilder fullFunctionCode = getAllFunctionCode(project, psiFile);
+        StringBuilder fullFunctionCode = getData(project, psiFile);
         System.out.println(fullFunctionCode);
 
         return Result.CONTINUE;
