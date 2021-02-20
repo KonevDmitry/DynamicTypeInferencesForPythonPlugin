@@ -18,10 +18,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.dropbox.core.DbxException;
-import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.extensions.PluginId;
 import dynamic.type.inferences.model.loader.BertModelLoader;
 import dynamic.type.inferences.model.translator.BertTranslator;
 
@@ -29,28 +26,27 @@ import dynamic.type.inferences.model.translator.BertTranslator;
 public class TorchBert {
     private static Predictor<String, Classifications> predictor;
     private final Object sharedObject = new Object();
-
     private final BertModelLoader loader = new BertModelLoader(sharedObject);
 
     public TorchBert() {
-        ClassLoader current = Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-        } finally {
-            Thread.currentThread().setContextClassLoader(current);
-        }
     }
 
     public synchronized void modelInit() throws IOException, MalformedModelException, ModelNotFoundException, URISyntaxException, DbxException, InterruptedException {
-        URL urlVocab = getClass().getClassLoader().getResource("/data/torchBERT/vocab.txt");
-        String modelPath = PathManager.getConfigPath() + "/eeee.pt";
-        File modelFile = new File(modelPath);
-        if (modelFile.exists())
-            createPredictor(urlVocab, modelPath);
-        else {
-            loader.loadTo(modelPath);
-            synchronized (sharedObject) {
+        ClassLoader current = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(current);
+        } finally {
+            Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+            URL urlVocab = getClass().getClassLoader().getResource("/data/torchBERT/vocab.txt");
+            String modelPath = PathManager.getConfigPath() + "/eeee.pt";
+            File modelFile = new File(modelPath);
+            if (modelFile.exists())
                 createPredictor(urlVocab, modelPath);
+            else {
+                loader.loadTo(modelPath);
+                synchronized (sharedObject) {
+                    createPredictor(urlVocab, modelPath);
+                }
             }
         }
     }

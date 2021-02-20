@@ -79,7 +79,7 @@ dependencies {
 
     //PyTorch
     implementation("ai.djl.pytorch:pytorch-engine:0.9.0")
-    runtimeOnly("ai.djl.pytorch:pytorch-native-cpu:1.7.1")
+    runtimeOnly("ai.djl.pytorch:pytorch-native-cpu:1.7.0")
     implementation("ai.djl.pytorch:pytorch-model-zoo:0.9.0")
 
 //    implementation("com.dropbox.core:sdk:1.6-beta-1")
