@@ -13,20 +13,14 @@
 
     <idea-version since-build="183.0" until-build="203.*"/>
     <extensions defaultExtensionNs="com.intellij">
-        <!--        <lang.inspectionSuppressor language="Python" implementationClass="dynamic.type.inferences.FlakeInspectionSuppressor" />-->
-
-
-        <copyPastePostProcessor implementation="dynamic.type.inferences.handlers.CopyPasteHandler"/>
-        <editorActionHandler implementationClass="dynamic.type.inferences.handlers.BackSpaceHandler" action="EditorBackSpace"/>
-        <editorActionHandler implementationClass="dynamic.type.inferences.handlers.EnterHandler" action="EditorEnter"/>
-        <editorActionHandler implementationClass="dynamic.type.inferences.handlers.DeleteHandler" action="EditorDelete"/>
-        <editorActionHandler implementationClass="dynamic.type.inferences.handlers.TabHandler" action="EditorTab"/>
-        <typedHandler implementation="dynamic.type.inferences.handlers.KeyHandler"/>
-        <preloadingActivity implementation="dynamic.type.inferences.StartUpActive"/>
+        <postStartupActivity
+                implementation="dynamic.type.inferences.startUpActive.StartUpActive"
+                order="first"/>
 
         <completion.contributor implementationClass="dynamic.type.inferences.completer.PyVarsForFuncCompleter"
         language="Python"
         order="first"
+
         />
 
     </extensions>

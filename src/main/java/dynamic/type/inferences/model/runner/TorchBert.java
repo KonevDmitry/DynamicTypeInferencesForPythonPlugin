@@ -19,14 +19,23 @@ import java.util.stream.Collectors;
 
 import com.dropbox.core.DbxException;
 import com.intellij.openapi.application.PathManager;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressIndicatorProvider;
 import dynamic.type.inferences.model.loader.BertModelLoader;
 import dynamic.type.inferences.model.translator.BertTranslator;
+
+import javax.swing.*;
 
 
 public class TorchBert {
     private static Predictor<String, Classifications> predictor;
     private final Object sharedObject = new Object();
     private final BertModelLoader loader = new BertModelLoader(sharedObject);
+    private boolean initialized = false;
+
+    public boolean isInitialized() {
+        return initialized;
+    }
 
     public TorchBert() {
     }
@@ -40,12 +49,14 @@ public class TorchBert {
             URL urlVocab = getClass().getClassLoader().getResource("/data/torchBERT/vocab.txt");
             String modelPath = PathManager.getConfigPath() + "/eeee.pt";
             File modelFile = new File(modelPath);
-            if (modelFile.exists())
+            if (modelFile.exists()) {
                 createPredictor(urlVocab, modelPath);
-            else {
+                initialized = true;
+            } else {
                 loader.loadTo(modelPath);
                 synchronized (sharedObject) {
                     createPredictor(urlVocab, modelPath);
+                    initialized = true;
                 }
             }
         }

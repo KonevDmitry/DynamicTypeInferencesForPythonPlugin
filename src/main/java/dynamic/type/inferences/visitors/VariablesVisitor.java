@@ -1,5 +1,7 @@
 package dynamic.type.inferences.visitors;
 
+import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.file.PsiDirectoryImpl;
 import com.jetbrains.python.psi.*;
@@ -19,7 +21,7 @@ public class VariablesVisitor extends PyRecursiveElementVisitor {
             if (temporal instanceof PyTargetExpression)
                 key.append(temporal.toString());
             temporal = temporal.getParent();
-            key.insert(0, "*" + temporal.toString());
+            key.insert(0, "/" + temporal.toString());
         }
         variablesMap.put(String.valueOf(key), node);
         super.visitPyTargetExpression(node);

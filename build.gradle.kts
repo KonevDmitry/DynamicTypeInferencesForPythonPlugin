@@ -59,7 +59,6 @@ dependencies {
     implementation("org.slf4j:slf4j-api:1.7.26")
     implementation("org.slf4j:slf4j-simple:1.7.26")
     implementation("net.java.dev.jna:jna:5.3.0")
-
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.3.9")
 
@@ -81,8 +80,6 @@ dependencies {
     implementation("ai.djl.pytorch:pytorch-engine:0.9.0")
     runtimeOnly("ai.djl.pytorch:pytorch-native-cpu:1.7.0")
     implementation("ai.djl.pytorch:pytorch-model-zoo:0.9.0")
-
-//    implementation("com.dropbox.core:sdk:1.6-beta-1")
     implementation("com.dropbox.core:dropbox-core-sdk:3.1.5")
 }
 
