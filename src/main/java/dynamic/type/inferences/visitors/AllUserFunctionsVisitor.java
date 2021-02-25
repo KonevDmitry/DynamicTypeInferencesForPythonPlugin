@@ -2,7 +2,6 @@ package dynamic.type.inferences.visitors;
 
 import com.jetbrains.python.psi.PyFunction;
 import com.jetbrains.python.psi.PyRecursiveElementVisitor;
-import org.apache.commons.collections.map.MultiKeyMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -13,7 +12,7 @@ public class AllUserFunctionsVisitor extends PyRecursiveElementVisitor {
     private final StringBuilder fullCode = new StringBuilder();
     private final Map<String, String> functionCodeMap = new HashMap<>();
 
-    public AllUserFunctionsVisitor(){
+    public AllUserFunctionsVisitor() {
     }
 
     public StringBuilder getFullCode() {
@@ -25,7 +24,7 @@ public class AllUserFunctionsVisitor extends PyRecursiveElementVisitor {
 
     @Override
     public void visitPyFunction(@NotNull PyFunction node) {
-        String nodeText = node.getText().concat("\n\n");
+        String nodeText = node.getText();
         fullCode.append(nodeText);
         if (node.getName() != null) {
             String key = Objects.requireNonNull(node
@@ -33,7 +32,8 @@ public class AllUserFunctionsVisitor extends PyRecursiveElementVisitor {
                     .getVirtualFile()
                     .getCanonicalPath())
                     .concat("/")
-                    .concat(Objects.requireNonNull(node.getNameNode()).getText());
+                    .concat(nodeText);
+//                    .concat(Objects.requireNonNull(node.getNameNode()).getText());
             functionCodeMap.put(key, nodeText);
             super.visitPyFunction(node);
         }

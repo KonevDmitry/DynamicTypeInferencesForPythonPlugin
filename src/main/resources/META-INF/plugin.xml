@@ -11,17 +11,16 @@
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
 
 
-    <idea-version since-build="183.0" until-build="203.*"/>
+    <idea-version since-build="183.0"/>
     <extensions defaultExtensionNs="com.intellij">
         <postStartupActivity
                 implementation="dynamic.type.inferences.startUpActive.StartUpActive"
                 order="first"/>
 
         <completion.contributor implementationClass="dynamic.type.inferences.completer.PyVarsForFuncCompleter"
-        language="Python"
-        order="first"
-
+                                language="Python"
+                                order="first"
         />
-
+        <notificationGroup id="Custom Notification Group" displayType="BALLOON" key="notification.group.name"/>
     </extensions>
 </idea-plugin>

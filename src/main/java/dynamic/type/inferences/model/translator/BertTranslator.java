@@ -1,24 +1,18 @@
 package dynamic.type.inferences.model.translator;
 
-import ai.djl.Model;
 import ai.djl.modality.Classifications;
 import ai.djl.modality.nlp.SimpleVocabulary;
 import ai.djl.modality.nlp.bert.BertFullTokenizer;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
-import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.StackBatchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class BertTranslator implements Translator<String, Classifications> {
 
@@ -30,7 +24,7 @@ public class BertTranslator implements Translator<String, Classifications> {
         this.tokenizer = tokenizer;
         this.vocab = tokenizer.getVocabulary();
         //TODO: get ranks for our own model
-        this.ranks = Arrays.asList("Negative", "Neutral", "Positive");
+        this.ranks = Arrays.asList("Negative", "Neutral", "Positive", "12", "13","14","15");
     }
 
     @Override

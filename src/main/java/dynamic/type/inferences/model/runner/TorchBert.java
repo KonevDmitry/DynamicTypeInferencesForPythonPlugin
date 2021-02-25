@@ -3,6 +3,7 @@ package dynamic.type.inferences.model.runner;
 import ai.djl.*;
 import ai.djl.inference.Predictor;
 import ai.djl.modality.Classifications;
+import ai.djl.modality.Classifications.Classification;
 import ai.djl.modality.nlp.SimpleVocabulary;
 import ai.djl.modality.nlp.bert.BertFullTokenizer;
 import ai.djl.repository.zoo.*;
@@ -19,15 +20,13 @@ import java.util.stream.Collectors;
 
 import com.dropbox.core.DbxException;
 import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressIndicatorProvider;
 import dynamic.type.inferences.model.loader.BertModelLoader;
 import dynamic.type.inferences.model.translator.BertTranslator;
 
-import javax.swing.*;
-
 
 public class TorchBert {
+    private static final Integer MAX_VALUES_TO_SHOW = 5;
+
     private static Predictor<String, Classifications> predictor;
     private final Object sharedObject = new Object();
     private final BertModelLoader loader = new BertModelLoader(sharedObject);
@@ -107,18 +106,23 @@ public class TorchBert {
 //
 //    }
 
-    public ArrayList<Classifications> predict(List<String> inputs)
-            throws MalformedModelException, ModelNotFoundException, IOException,
-            TranslateException {
+    public List<Classification> predictOne(String input) throws TranslateException {
+        Classifications res = predictor.predict(input);
+        List<Classification> items = res.items();
+        return items.size() > MAX_VALUES_TO_SHOW ? items.subList(0, MAX_VALUES_TO_SHOW) : items;
+    }
 
-        //TODO: cab be change only for one function.
-        ArrayList<Classifications> predicts = new ArrayList<>();
+    public List<List<Classification>> predictAll(List<String> inputs)
+            throws TranslateException {
+
+        List<List<Classification>> predicts = new ArrayList<>();
         for (String input : inputs) {
             Classifications res = predictor.predict(input);
-            predicts.add(res);
+            List<Classification> items = res.items();
+            items = items.size() > 5 ? items.subList(0, 5) : items;
+            predicts.add(items);
         }
-
-        return predicts;
+        return predicts.size() > 5 ? predicts.subList(0, 5) : predicts;
     }
 
 }
