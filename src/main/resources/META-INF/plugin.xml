@@ -21,6 +21,9 @@
                                 language="Python"
                                 order="first"
         />
-        <notificationGroup id="Custom Notification Group" displayType="BALLOON" key="notification.group.name"/>
+
+        <lang.documentationProvider language="Python"
+                                    implementationClass="dynamic.type.inferences.docProvider.ModelDocumentationProvider"
+                                    order="first"/>
     </extensions>
 </idea-plugin>

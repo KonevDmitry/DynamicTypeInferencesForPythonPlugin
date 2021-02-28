@@ -1,6 +1,7 @@
 package dynamic.type.inferences.model.runner;
 
 import ai.djl.*;
+import ai.djl.engine.EngineException;
 import ai.djl.inference.Predictor;
 import ai.djl.modality.Classifications;
 import ai.djl.modality.Classifications.Classification;
@@ -27,6 +28,8 @@ import dynamic.type.inferences.model.translator.BertTranslator;
 public class TorchBert {
     private static final Integer MAX_VALUES_TO_SHOW = 5;
 
+    private static final URL urlVocab = TorchBert.class.getClassLoader().getResource("/data/torchBERT/vocab.txt");
+    private static final String modelPath = PathManager.getConfigPath() + "/eeee.pt";
     private static Predictor<String, Classifications> predictor;
     private final Object sharedObject = new Object();
     private final BertModelLoader loader = new BertModelLoader(sharedObject);
@@ -34,6 +37,10 @@ public class TorchBert {
 
     public boolean isInitialized() {
         return initialized;
+    }
+
+    public void setInitialized(boolean initialized) {
+        this.initialized = initialized;
     }
 
     public TorchBert() {
@@ -45,50 +52,57 @@ public class TorchBert {
             Thread.currentThread().setContextClassLoader(current);
         } finally {
             Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-            URL urlVocab = getClass().getClassLoader().getResource("/data/torchBERT/vocab.txt");
-            String modelPath = PathManager.getConfigPath() + "/eeee.pt";
             File modelFile = new File(modelPath);
             if (modelFile.exists()) {
                 createPredictor(urlVocab, modelPath);
-                initialized = true;
+                setInitialized(true);
             } else {
                 loader.loadTo(modelPath);
                 synchronized (sharedObject) {
                     createPredictor(urlVocab, modelPath);
-                    initialized = true;
+                    setInitialized(true);
                 }
             }
         }
     }
 
-    public void createPredictor(URL url, String path) throws IOException, ModelNotFoundException, MalformedModelException {
-        BufferedReader brVocab = new BufferedReader(
-                new InputStreamReader(
-                        Objects.requireNonNull(url).openStream()));
+    public void createPredictor(URL url, String path) throws IOException, ModelNotFoundException, MalformedModelException, DbxException {
+        try {
+            BufferedReader brVocab = new BufferedReader(
+                    new InputStreamReader(
+                            Objects.requireNonNull(url).openStream()));
 
-        SimpleVocabulary vocabulary = SimpleVocabulary.builder()
-                .optMinFrequency(1)
-                .add(brVocab
-                        .lines()
-                        .collect(Collectors.toList()))
-                .optUnknownToken("[UNK]")
-                .build();
+            SimpleVocabulary vocabulary = SimpleVocabulary.builder()
+                    .optMinFrequency(1)
+                    .add(brVocab
+                            .lines()
+                            .collect(Collectors.toList()))
+                    .optUnknownToken("[UNK]")
+                    .build();
 
-        BertFullTokenizer tokenizer = new BertFullTokenizer(vocabulary, true);
-        BertTranslator translator = new BertTranslator(tokenizer);
+            BertFullTokenizer tokenizer = new BertFullTokenizer(vocabulary, true);
+            BertTranslator translator = new BertTranslator(tokenizer);
 
-        Criteria<String, Classifications> criteria =
-                Criteria.builder()
-                        .optApplication(Application.NLP.SENTIMENT_ANALYSIS)
-                        .optDevice(Device.cpu())
-                        .setTypes(String.class, Classifications.class)
-                        .optModelUrls(path)
-                        .optTranslator(translator)
-                        .optProgress(new ProgressBar())
-                        .build();
+            Criteria<String, Classifications> criteria =
+                    Criteria.builder()
+                            .optApplication(Application.NLP.SENTIMENT_ANALYSIS)
+                            .optDevice(Device.cpu())
+                            .setTypes(String.class, Classifications.class)
+                            .optModelUrls(path)
+                            .optTranslator(translator)
+                            .optProgress(new ProgressBar())
+                            .build();
 
-        ZooModel<String, Classifications> model = ModelZoo.loadModel(criteria);
-        predictor = model.newPredictor(translator);
+            ZooModel<String, Classifications> model = ModelZoo.loadModel(criteria);
+            predictor = model.newPredictor(translator);
+        }
+        catch (EngineException ignored){
+            loader.loadTo(modelPath);
+            synchronized (sharedObject) {
+                createPredictor(urlVocab, modelPath);
+                setInitialized(true);
+            }
+        }
     }
 //    public void main(String[] args) throws IOException, ModelException, TranslateException {
 //        modelInit();

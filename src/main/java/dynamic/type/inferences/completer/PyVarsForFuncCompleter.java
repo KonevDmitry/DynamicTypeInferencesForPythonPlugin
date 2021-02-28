@@ -11,6 +11,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.notification.Notifications;
 import com.intellij.notification.NotificationsManager;
 import com.intellij.notification.impl.NotificationsManagerImpl;
+import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.event.DocumentEvent;
@@ -34,6 +35,7 @@ import com.jetbrains.python.psi.impl.PyReferenceExpressionImpl;
 import com.jetbrains.python.psi.impl.PyTypeProvider;
 import com.jetbrains.python.psi.types.PyType;
 import dynamic.type.inferences.lookUpElement.ModelLookUpElement;
+import dynamic.type.inferences.model.loader.BertModelLoader;
 import dynamic.type.inferences.model.runner.TorchBert;
 import dynamic.type.inferences.notification.ModelNotLoadedNotification;
 import dynamic.type.inferences.startUpActive.StartUpActive;
@@ -58,14 +60,16 @@ public class PyVarsForFuncCompleter extends CompletionContributor {
     private final Map<String, String> allFunctionCodeMap = new HashMap<>();
     private final Map<String, PyTargetExpression> allVariablesMap = new HashMap<>();
     private final TorchBert torchBert = StartUpActive.getTorchBertInstance();
+    private final Object sharedObject = new Object();
 
+    private static String modelPath = PathManager.getConfigPath() + "/eeee.pt";
     private static final Integer priority = Integer.MAX_VALUE - 100;
     List<String> blackList = new ArrayList<String>() {{
         add("venv");
         add("idea");
     }};
 
-    public PyVarsForFuncCompleter() {
+    public PyVarsForFuncCompleter() throws NullPointerException {
         extend(CompletionType.BASIC,
                 psiElement()
                         .inFile(psiFile()
@@ -107,42 +111,52 @@ public class PyVarsForFuncCompleter extends CompletionContributor {
                                         .getCallee();
 
                                 PyGotoDeclarationHandler handler = new PyGotoDeclarationHandler();
-                                PyFunction pyFunction = Objects.requireNonNull((PyFunction)
-                                        handler
-                                                .getGotoDeclarationTarget(callee, parameters.getEditor()));
+                                try {
+                                    PyFunction pyFunction = (PyFunction)
+                                            handler.getGotoDeclarationTarget(callee, parameters.getEditor());
 
-                                String funcFilePath = Objects.requireNonNull(
-                                        pyFunction
-                                                .getContainingFile()
-                                                .getVirtualFile()
-                                                .getCanonicalPath());
+                                    String funcFilePath =
+                                            pyFunction
+                                                    .getContainingFile()
+                                                    .getVirtualFile()
+                                                    .getCanonicalPath();
 
-                                String key = funcFilePath
-                                        .concat("/")
-                                        .concat(pyFunction.getText());
+                                    String key = funcFilePath
+                                            .concat("/")
+                                            .concat(pyFunction.getText());
 
-                                if (allFunctionCodeMap.containsKey(key)) {
-                                    String prefix = CompletionUtil.findReferenceOrAlphanumericPrefix(parameters);
-                                    CompletionResultSet resultSetWithPrefix = result.withPrefixMatcher(prefix);
+                                    if (allFunctionCodeMap.containsKey(key)) {
+                                        String prefix = CompletionUtil.findReferenceOrAlphanumericPrefix(parameters);
+                                        CompletionResultSet resultSetWithPrefix = result.withPrefixMatcher(prefix);
+                                        if (torchBert.isInitialized()) {
+                                            try {
+                                                List<Classification> predicts = torchBert.
+                                                        predictOne(allFunctionCodeMap.get(key));
+                                                ModelLookUpElement modelLookUpElement = new ModelLookUpElement();
+                                                for (Classification predict : predicts) {
+                                                    LookupElement element = modelLookUpElement.createElement(predict);
+                                                    resultSetWithPrefix.addElement(
+                                                            PrioritizedLookupElement
+                                                                    .withPriority(element, priority + predict.getProbability()));
+                                                }
+                                            } catch (TranslateException e) {
+                                                // never should happen, just in case
+                                                ModelNotLoadedNotification notification = new ModelNotLoadedNotification();
+                                                Notifications.Bus.notify(notification.createErrorNotification());
 
-                                    if (torchBert.isInitialized()) {
-                                        try {
-                                            List<Classification> predicts = torchBert.
-                                                    predictOne(allFunctionCodeMap.get(key));
-                                            ModelLookUpElement modelLookUpElement = new ModelLookUpElement();
-                                            for (Classification predict : predicts) {
-                                                LookupElement element = modelLookUpElement.createElement(predict);
-                                                resultSetWithPrefix.addElement(
-                                                        PrioritizedLookupElement
-                                                                .withPriority(element, priority + predict.getProbability()));
+                                                BertModelLoader loader = new BertModelLoader(sharedObject);
+                                                loader.loadTo(modelPath);
+                                                synchronized (sharedObject) {
+                                                    torchBert.setInitialized(true);
+                                                }
                                             }
-                                        } catch (TranslateException ignored) {
+                                        } else {
+                                            ModelNotLoadedNotification notification = new ModelNotLoadedNotification();
+                                            Notifications.Bus.notify(notification.createInfoNotification());
                                         }
-                                    } else {
-                                        ModelNotLoadedNotification notification = new ModelNotLoadedNotification();
-                                        Notifications.Bus.notify(notification.createNotification());
                                     }
                                 }
+                                catch (Exception ignored){}
                             }
                             result.runRemainingContributors(parameters, true);
                             result.stopHere();

@@ -5,7 +5,6 @@ import ai.djl.modality.Classifications;
 import ai.djl.repository.zoo.ModelNotFoundException;
 import ai.djl.translate.TranslateException;
 import com.dropbox.core.DbxException;
-import com.intellij.openapi.application.PreloadingActivity;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -50,23 +49,24 @@ public class StartUpActive implements StartupActivity {
 
     @Override
     public void runActivity(@NotNull Project project) {
-        ProgressManager.getInstance().run(new Task.Backgroundable(project, "VaDima Loader") {
-            public void run(@NotNull ProgressIndicator indicator) {
-                indicator.setIndeterminate(true);
-                indicator.setText("Loading model. Please wait...");
-                try {
-                    torchBert.modelInit();
-                    indicator.stop();
-                } catch (IOException | MalformedModelException | ModelNotFoundException | URISyntaxException | DbxException | InterruptedException e) {
-                    e.printStackTrace();
-                }
-                //            System.out.println("AAAAAAAAAAAAAAAAA");
-                //            ArrayList<Classifications> res;
-                //            res = torchBert.predict(new ArrayList<String>() {{
-                //                add("scascsa");
-                //            }});
-                //            System.out.println(res);
-            }
-        });
+        ProgressManager.getInstance().run(
+                new Task.Backgroundable(project, "VaDima Loader") {
+                    public void run(@NotNull ProgressIndicator indicator) {
+                        indicator.setIndeterminate(true);
+                        indicator.setText("Loading model. Please wait...");
+                        try {
+                            torchBert.modelInit();
+                            indicator.stop();
+                        } catch (IOException | MalformedModelException | ModelNotFoundException | URISyntaxException | DbxException | InterruptedException ignored) {
+
+                        }
+                        //            System.out.println("AAAAAAAAAAAAAAAAA");
+                        //            ArrayList<Classifications> res;
+                        //            res = torchBert.predict(new ArrayList<String>() {{
+                        //                add("scascsa");
+                        //            }});
+                        //            System.out.println(res);
+                    }
+                });
     }
 }
