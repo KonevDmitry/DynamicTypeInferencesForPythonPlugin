@@ -3,6 +3,7 @@ package dynamic.type.inferences.docProvider;
 import ai.djl.modality.Classifications.Classification;
 import ai.djl.translate.TranslateException;
 import com.dropbox.core.DbxException;
+import com.intellij.lang.documentation.DocumentationProvider;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.psi.PsiElement;
@@ -27,10 +28,12 @@ public class ModelDocumentationProvider extends PythonDocumentationProvider {
     private final Object sharedObject = new Object();
     private final BertModelLoader loader = new BertModelLoader(sharedObject);
     private static final String modelPath = PathManager.getConfigPath() + "/eeee.pt";
+    private final DocumentationProvider provider = new PythonDocumentationProvider();
 
+    // ctrl+ mouse navigation
     @Override
     public String getQuickNavigateInfo(PsiElement element, @NotNull PsiElement originalElement) {
-        String defaultString = Objects.requireNonNull(super.getQuickNavigateInfo(element, originalElement));
+        String defaultString = Objects.requireNonNull(provider.getQuickNavigateInfo(element, originalElement));
         PsiFile file = element.getContainingFile();
         file.accept(visitor);
         if (torchBert.isInitialized() &&
@@ -47,45 +50,67 @@ public class ModelDocumentationProvider extends PythonDocumentationProvider {
                     List<Classification> predicts = torchBert.predictOne(element.getText());
                     return getBeautifulPredictions(defaultString, predicts);
                 }
-            } catch (TranslateException ignored) {
+            } catch (TranslateException e) {
+                // Too big input or empty text. Translator goes crazy and crashes everything)))))))))))))
                 return defaultString;
             }
         }
         return defaultString;
     }
 
+    //ctrl+q
     @Override
     public String generateDoc(@NotNull PsiElement element, @Nullable PsiElement originalElement) {
-        try {
-            if (torchBert.isInitialized()) {
-                if (element instanceof PyFunction) {
-                    String defaultString = super.generateDoc(element, originalElement);
+
+        // Calling provider.generateDoc causes an OSProcessHandler - Synchronous execution under ReadAction
+        // Operation is time consuming, so it is getting really impossible to run it.
+        // Alternative way to generate is the next:
+        //   * DEFINITION_START + definition + DEFINITION_END +
+        //   * CONTENT_START + main description + CONTENT_END +
+        //   * SECTIONS_START +
+        //   *   SECTION_HEADER_START + section name +
+        //   *     SECTION_SEPARATOR + "&lt;p&gt;" + section content + SECTION_END +
+        //   *   ... +
+        //   * SECTIONS_END
+
+        final String defaultString = provider.getQuickNavigateInfo(element, originalElement);
+        PsiFile file = element.getContainingFile();
+        file.accept(visitor);
+        if (torchBert.isInitialized()) {
+            if (element instanceof PyFunction) {
+                try {
                     PyFunction pyFunction = (PyFunction) element;
                     String codeText = pyFunction.getText();
-                    List<Classification> predicts = torchBert.predictOne(codeText);
-                    String predictions = getBeautifulPredictions("", predicts);
-                    if (defaultString != null)
-                        return defaultString.concat(predictions);
-                    else
+                    String key = Objects.requireNonNull(
+                            element
+                                    .getContainingFile()
+                                    .getVirtualFile()
+                                    .getCanonicalPath())
+                            .concat("/")
+                            .concat(element.getText());
+                    if (visitor.getFunctionCodeMap().containsKey(key)) {
+                        List<Classification> predicts = torchBert.predictOne(codeText);
+                        String predictions = getBeautifulPredictions("", predicts);
+                        if (defaultString != null)
+                            return defaultString.concat(predictions);
+                        else
+                            return "";
+                    } else
                         return defaultString;
-                } else
-                    return super.generateDoc(element, originalElement);
-            } else {
-                ModelNotLoadedNotification notification = new ModelNotLoadedNotification();
-                Notifications.Bus.notify(notification.createInfoNotification());
-                return super.generateDoc(element, originalElement);
-            }
-        } catch (TranslateException e) {
-            // never should happen, just in case
-            try {
-                loader.loadTo(modelPath);
-                synchronized (sharedObject) {
-                    torchBert.setInitialized(true);
+                } catch (TranslateException e) {
+                    // never should happen in normal situation, just in case
+                    try {
+                        loader.loadTo(modelPath);
+                        synchronized (sharedObject) {
+                            torchBert.setInitialized(true);
+                        }
+                    } catch (IOException | DbxException ignored) {
+                        ModelNotLoadedNotification notification = new ModelNotLoadedNotification();
+                        Notifications.Bus.notify(notification.createErrorNotification());
+                    }
                 }
-            } catch (IOException | DbxException ignored) {
-                ModelNotLoadedNotification notification = new ModelNotLoadedNotification();
-                Notifications.Bus.notify(notification.createErrorNotification());
-            }
+            } else
+                return defaultString;
         }
         return "";
     }
@@ -99,7 +124,7 @@ public class ModelDocumentationProvider extends PythonDocumentationProvider {
                     .concat("</i><br/>");
         }
         return defaultString
-                .concat("<br/><br/><b>VaDima predictions:</b><br/>\b")
+                .concat("<br/><b>VaDima predictions:</b><br/>\b")
                 .concat(modelPredicts);
     }
 }
