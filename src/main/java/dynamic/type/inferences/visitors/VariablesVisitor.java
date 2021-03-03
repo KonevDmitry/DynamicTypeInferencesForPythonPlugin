@@ -1,7 +1,5 @@
 package dynamic.type.inferences.visitors;
 
-import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.file.PsiDirectoryImpl;
 import com.jetbrains.python.psi.*;
@@ -15,19 +13,23 @@ public class VariablesVisitor extends PyRecursiveElementVisitor {
 
     @Override
     public void visitPyTargetExpression(@NotNull PyTargetExpression node) {
-        PsiElement temporal = node;
-        StringBuilder key = new StringBuilder();
-        while (!(temporal.getParent() instanceof PsiDirectoryImpl)) {
-            if (temporal instanceof PyTargetExpression)
-                key.append(temporal.toString());
-            temporal = temporal.getParent();
-            key.insert(0, "/" + temporal.toString());
-        }
+        String key = generateKeyForNode(node);
         variablesMap.put(String.valueOf(key), node);
         super.visitPyTargetExpression(node);
     }
 
     public Map<String, PyTargetExpression> getVariablesMap() {
         return variablesMap;
+    }
+
+    public static String generateKeyForNode(PsiElement node) {
+        PsiElement temporal = node;
+        StringBuilder key = new StringBuilder();
+        //get full path until the root directory
+        while (!(temporal instanceof PsiDirectoryImpl && temporal.getChildren()[0] instanceof PsiDirectoryImpl)) {
+            key.insert(0, "/" + temporal.toString());
+            temporal = temporal.getOriginalElement().getParent();
+        }
+        return String.valueOf(key);
     }
 }

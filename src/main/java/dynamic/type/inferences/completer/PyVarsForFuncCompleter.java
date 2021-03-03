@@ -1,16 +1,11 @@
 package dynamic.type.inferences.completer;
 
-import ai.djl.modality.Classifications;
 import ai.djl.modality.Classifications.Classification;
 import ai.djl.translate.TranslateException;
+import com.dropbox.core.DbxException;
 import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.find.impl.livePreview.ReplacementView;
-import com.intellij.lang.ASTNode;
 import com.intellij.notification.Notifications;
-import com.intellij.notification.NotificationsManager;
-import com.intellij.notification.impl.NotificationsManagerImpl;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.EditorFactory;
@@ -20,10 +15,6 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ContentIterator;
 import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.ui.popup.Balloon;
-import com.intellij.openapi.ui.popup.BalloonBuilder;
-import com.intellij.openapi.ui.popup.BalloonHandler;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -31,9 +22,6 @@ import com.intellij.util.ProcessingContext;
 import com.jetbrains.python.PythonFileType;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.PyGotoDeclarationHandler;
-import com.jetbrains.python.psi.impl.PyReferenceExpressionImpl;
-import com.jetbrains.python.psi.impl.PyTypeProvider;
-import com.jetbrains.python.psi.types.PyType;
 import dynamic.type.inferences.lookUpElement.ModelLookUpElement;
 import dynamic.type.inferences.model.loader.BertModelLoader;
 import dynamic.type.inferences.model.runner.TorchBert;
@@ -42,18 +30,15 @@ import dynamic.type.inferences.startUpActive.StartUpActive;
 import dynamic.type.inferences.visitors.AllUserFunctionsVisitor;
 import dynamic.type.inferences.visitors.VariablesVisitor;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.params.shadow.com.univocity.parsers.annotations.Replace;
 
-import javax.management.Notification;
-import javax.swing.*;
-import java.awt.*;
+import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 import static com.intellij.patterns.PlatformPatterns.psiFile;
 import static com.intellij.patterns.StandardPatterns.instanceOf;
-import static com.intellij.patterns.StandardPatterns.not;
 
 public class PyVarsForFuncCompleter extends CompletionContributor {
     private final StringBuilder allFullCode = new StringBuilder();
@@ -62,7 +47,7 @@ public class PyVarsForFuncCompleter extends CompletionContributor {
     private final TorchBert torchBert = StartUpActive.getTorchBertInstance();
     private final Object sharedObject = new Object();
 
-    private static String modelPath = PathManager.getConfigPath() + "/eeee.pt";
+    private static final String modelPath = PathManager.getConfigPath() + "/eeee.pt";
     private static final Integer priority = Integer.MAX_VALUE - 100;
     List<String> blackList = new ArrayList<String>() {{
         add("venv");
@@ -79,6 +64,7 @@ public class PyVarsForFuncCompleter extends CompletionContributor {
                     protected void addCompletions(@NotNull CompletionParameters parameters,
                                                   @NotNull ProcessingContext context,
                                                   @NotNull CompletionResultSet result) {
+                        //if not python file do nothing
                         FileType fileType = parameters.getOriginalFile().getFileType();
                         if (!(fileType instanceof PythonFileType)) {
                             return;
@@ -104,14 +90,13 @@ public class PyVarsForFuncCompleter extends CompletionContributor {
                             getData(project);
                             //Calling inside parenthesis: "()"
                             if (currentElem.getParent() instanceof PyArgumentList) {
-                                PyCallExpression callExpression = PsiTreeUtil
-                                        .getParentOfType(currentElem, PyCallExpression.class);
-                                PyExpression callee = Objects
-                                        .requireNonNull(callExpression)
-                                        .getCallee();
-
+                                PyCallExpression callExpression = PsiTreeUtil.getParentOfType(currentElem, PyCallExpression.class);
+                                PyExpression callee = Objects.requireNonNull(callExpression).getCallee();
                                 PyGotoDeclarationHandler handler = new PyGotoDeclarationHandler();
+
                                 try {
+                                    // get current function at callee position and check if it is
+                                    // in user-defined functions
                                     PyFunction pyFunction = (PyFunction)
                                             handler.getGotoDeclarationTarget(callee, parameters.getEditor());
 
@@ -125,7 +110,59 @@ public class PyVarsForFuncCompleter extends CompletionContributor {
                                             .concat("/")
                                             .concat(pyFunction.getText());
 
+                                    //user variables only
                                     if (allFunctionCodeMap.containsKey(key)) {
+                                        //get default completion result list and filter it
+                                        //taking the variables
+                                        List<String> suitableVariables = result.runRemainingContributors(parameters, false)
+                                                .stream()
+                                                .filter(elem -> {
+                                                            PsiElement psiElement = elem
+                                                                    .getLookupElement()
+                                                                    .getPsiElement();
+                                                            if (psiElement instanceof PyTargetExpression) {
+                                                                String innerKey = VariablesVisitor.generateKeyForNode(psiElement);
+                                                                return allVariablesMap.containsKey(innerKey);
+                                                            } else
+                                                                return false;
+                                                        }
+                                                )
+                                                .map(elem -> elem.getLookupElement().getLookupString())
+                                                .collect(Collectors.toList());
+
+                                        //check case if function is inside class
+                                        PyClass pyClass = PsiTreeUtil.getParentOfType(callExpression, PyClass.class);
+
+                                        //get variable like self.<name>
+                                        List<String> selfVariables =
+                                                PsiTreeUtil
+                                                        .findChildrenOfType(pyClass, PyTargetExpression.class)
+                                                        .stream()
+                                                        .filter(elem -> Objects.requireNonNull(elem.asQualifiedName())
+                                                                .getComponents()
+                                                                .contains("self"))
+                                                        .map(elem -> Objects.requireNonNull(elem.asQualifiedName()).toString())
+                                                        .collect(Collectors.toList());
+                                        // take variable names from function declaration
+                                        PyFunction callableFunction = PsiTreeUtil.getParentOfType(callee, PyFunction.class);
+                                        List<String> namedParameters =
+                                                PsiTreeUtil
+                                                        .findChildrenOfType(callableFunction, PyNamedParameter.class)
+                                                        .stream()
+                                                        .filter(elem -> {
+                                                            String elemName = Objects.requireNonNull(elem.getNameIdentifier()).getText();
+                                                            // if function is inside class, then remove self (first argument)
+                                                            return !elemName.equals("self");
+                                                        })
+                                                        .map(elem -> elem.getNameIdentifier().getText())
+                                                        .collect(Collectors.toList());
+
+                                        suitableVariables.addAll(namedParameters);
+                                        // If call is inside class
+                                        if (pyClass != null) {
+                                            suitableVariables.addAll(selfVariables);
+                                        }
+                                        System.out.println(suitableVariables);
                                         String prefix = CompletionUtil.findReferenceOrAlphanumericPrefix(parameters);
                                         CompletionResultSet resultSetWithPrefix = result.withPrefixMatcher(prefix);
                                         if (torchBert.isInitialized()) {
@@ -155,9 +192,10 @@ public class PyVarsForFuncCompleter extends CompletionContributor {
                                             Notifications.Bus.notify(notification.createInfoNotification());
                                         }
                                     }
+                                } catch (IOException | DbxException ignored) {
                                 }
-                                catch (Exception ignored){}
                             }
+                            result.restartCompletionOnAnyPrefixChange();
                             result.runRemainingContributors(parameters, true);
                             result.stopHere();
                         }

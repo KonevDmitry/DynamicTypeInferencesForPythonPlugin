@@ -8,6 +8,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Implemented only for used-defined functions, because fetching library code periodically takes
+ * too much time. The only thing that works fast is ctrl+mouse action (getting documentation).
+ * So, predictions are available via fast documentation for all functions.
+ */
 public class AllUserFunctionsVisitor extends PyRecursiveElementVisitor {
     private final StringBuilder fullCode = new StringBuilder();
     private final Map<String, String> functionCodeMap = new HashMap<>();
@@ -18,6 +23,7 @@ public class AllUserFunctionsVisitor extends PyRecursiveElementVisitor {
     public StringBuilder getFullCode() {
         return fullCode;
     }
+
     public Map<String, String> getFunctionCodeMap() {
         return functionCodeMap;
     }
@@ -33,7 +39,6 @@ public class AllUserFunctionsVisitor extends PyRecursiveElementVisitor {
                     .getCanonicalPath())
                     .concat("/")
                     .concat(nodeText);
-//                    .concat(Objects.requireNonNull(node.getNameNode()).getText());
             functionCodeMap.put(key, nodeText);
             super.visitPyFunction(node);
         }
