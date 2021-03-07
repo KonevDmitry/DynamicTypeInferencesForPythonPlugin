@@ -22,8 +22,11 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
 import com.jetbrains.python.PythonFileType;
+import com.jetbrains.python.documentation.PythonDocumentationProvider;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.PyGotoDeclarationHandler;
+import com.jetbrains.python.psi.types.PyType;
+import com.jetbrains.python.psi.types.TypeEvalContext;
 import dynamic.type.inferences.lookUpElement.ModelLookUpElement;
 import dynamic.type.inferences.model.loader.BertModelLoader;
 import dynamic.type.inferences.model.runner.TorchBert;
@@ -40,7 +43,7 @@ import java.util.stream.Collectors;
 public class ModelCompletionProvider extends CompletionProvider<CompletionParameters> {
 
     private Project project;
-    private List<String> suitableVariables = new ArrayList<>();
+    private Map<String, String> suitableVariables = new HashMap<>();
 
     private final StringBuilder allFullCode = new StringBuilder();
     private final Map<String, String> allFunctionCodeMap = new HashMap<>();
@@ -49,13 +52,18 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
     private final Object sharedObject = new Object();
 
     private static final String modelPath = PathManager.getConfigPath() + "/eeee.pt";
-    private static final Integer priority = Integer.MAX_VALUE - 100;
+    private static final Integer modelPriority = Integer.MAX_VALUE - 99;
+    private static final Integer elemPriority = Integer.MAX_VALUE - 100;
     private static final List<String> blackList = new ArrayList<String>() {{
         add("venv");
         add("idea");
     }};
 
     public ModelCompletionProvider() {
+    }
+
+    public Map<String, String> getSuitableVariables() {
+        return suitableVariables;
     }
 
     @Override
@@ -108,7 +116,9 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
                         if (allFunctionCodeMap.containsKey(key)) {
                             //get default completion result list and filter it
                             //taking the variables
-                            List<String> suitableVariables = result.runRemainingContributors(parameters, false)
+                            TypeEvalContext evalContext = TypeEvalContext
+                                    .userInitiated(project, pyFunction.getContainingFile());
+                            Map<String, String> suitableVariables = result.runRemainingContributors(parameters, false)
                                     .stream()
                                     .filter(elem -> {
                                                 PsiElement psiElement = elem
@@ -121,26 +131,33 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
                                                     return false;
                                             }
                                     )
-                                    .map(elem -> elem.getLookupElement().getLookupString())
-                                    .collect(Collectors.toList());
+                                    .map(elem -> elem.getLookupElement().getPsiElement())
+                                    .collect(Collectors.toMap(
+                                            VariablesVisitor::generateKeyForNode,
+                                            elem -> PythonDocumentationProvider
+                                                    .getTypeHint(evalContext.getType((PyTypedElement) elem), evalContext)
+                                    ));
 
                             //check case if function is inside class
                             PyClass pyClass = PsiTreeUtil.getParentOfType(callExpression, PyClass.class);
 
                             //get variable like self.<name>
-                            List<String> selfVariables =
+                            Map<String, String> selfVariables =
                                     PsiTreeUtil
                                             .findChildrenOfType(pyClass, PyTargetExpression.class)
                                             .stream()
                                             .filter(elem -> Objects.requireNonNull(elem.asQualifiedName())
                                                     .getComponents()
                                                     .contains("self"))
-                                            .map(elem -> Objects.requireNonNull(elem.asQualifiedName()).toString())
-                                            .collect(Collectors.toList());
+                                            .collect(Collectors.toMap(
+                                                    VariablesVisitor::generateKeyForNode,
+                                                    elem -> PythonDocumentationProvider
+                                                            .getTypeHint(evalContext.getType(elem), evalContext)
+                                            ));
 
                             // take variable names from function declaration
                             PyFunction callableFunction = PsiTreeUtil.getParentOfType(callee, PyFunction.class);
-                            List<String> namedParameters =
+                            Map<String, String> namedParameters =
                                     PsiTreeUtil
                                             .findChildrenOfType(callableFunction, PyNamedParameter.class)
                                             .stream()
@@ -149,31 +166,40 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
                                                 // if function is inside class, then remove self (first argument)
                                                 return !elemName.equals("self");
                                             })
-                                            .map(elem -> elem.getNameIdentifier().getText())
-                                            .collect(Collectors.toList());
+                                            .collect(Collectors.toMap(
+                                                    VariablesVisitor::generateKeyForNode,
+                                                    // variable type can be defined
+                                                    elem -> {
+                                                        PyType argType = elem.getArgumentType(evalContext);
+                                                        if (argType != null) {
+                                                            String argName = argType.getName();
+                                                            return argName != null ? argName : "Any";
+                                                        }
+                                                        return "Any";
+                                                    }
+                                            ));
 
-                            suitableVariables.addAll(namedParameters);
+                            suitableVariables.putAll(namedParameters);
                             // If call is inside class
-                            if (pyClass != null) {
-                                suitableVariables.addAll(selfVariables);
-                            }
+                            if (pyClass != null)
+                                suitableVariables.putAll(selfVariables);
+
                             this.suitableVariables = suitableVariables;
-                            System.out.println(this.suitableVariables);
 
                             String prefix = CompletionUtil.findReferenceOrAlphanumericPrefix(parameters);
                             CompletionResultSet resultSetWithPrefix = result.withPrefixMatcher(prefix);
+                            ModelLookUpElement modelLookUpElement = new ModelLookUpElement();
                             if (torchBert.isInitialized()) {
                                 try {
                                     List<Classifications.Classification> predicts =
                                             torchBert.predictOne(allFunctionCodeMap.get(key));
 
-                                    ModelLookUpElement modelLookUpElement = new ModelLookUpElement();
-                                    for (Classifications.Classification predict : predicts) {
-                                        LookupElement element = modelLookUpElement.createElement(predict);
+                                    predicts.forEach(predict -> {
+                                        LookupElement element = modelLookUpElement.createModelElement(predict);
                                         resultSetWithPrefix.addElement(
                                                 PrioritizedLookupElement
-                                                        .withPriority(element, priority + predict.getProbability()));
-                                    }
+                                                        .withPriority(element, modelPriority + predict.getProbability()));
+                                    });
                                 } catch (TranslateException e) {
                                     // never should happen, just in case
                                     ModelNotLoadedNotification notification = new ModelNotLoadedNotification();
@@ -191,6 +217,13 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
                                 ModelNotLoadedNotification notification = new ModelNotLoadedNotification();
                                 Notifications.Bus.notify(notification.createInfoNotification());
                             }
+
+                            List<LookupElement> suitableLookUpElements = modelLookUpElement
+                                    .createSuggestedVariablesTypes(suitableVariables);
+                            suitableLookUpElements.stream()
+                                    .map(suitableElem ->
+                                            PrioritizedLookupElement.withPriority(suitableElem, elemPriority)
+                                    ).forEach(resultSetWithPrefix::addElement);
                         }
                     }
                 } catch (IOException | DbxException ignored) {
