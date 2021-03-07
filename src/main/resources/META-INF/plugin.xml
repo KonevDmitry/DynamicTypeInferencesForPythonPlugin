@@ -23,7 +23,7 @@
         />
 
         <lang.documentationProvider language="Python"
-                                    implementationClass="dynamic.type.inferences.docProvider.ModelDocumentationProvider"
+                                    implementationClass="dynamic.type.inferences.documentationProvider.ModelDocumentationProvider"
                                     order="first"/>
     </extensions>
 </idea-plugin>
