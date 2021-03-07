@@ -6,10 +6,7 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.ui.JBColor;
 import com.intellij.util.PlatformIcons;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ModelLookUpElement {
@@ -26,7 +23,7 @@ public class ModelLookUpElement {
                 .create(classification.getClassName())
                 .withPresentableText(classification.getClassName())
                 .withItemTextForeground(JBColor.RED)
-                .bold()
+                .withBoldness(true)
                 .withIcon(PlatformIcons.VARIABLE_ICON)
                 .withTailText(" Predicted by VaDima")
                 .withTypeText(" Suggested as: ".concat(String.valueOf(classification.getProbability())))
@@ -36,7 +33,8 @@ public class ModelLookUpElement {
     public LookupElementBuilder createSuggestedVariableType(Map.Entry<String, String> entry) {
         String fullKey = entry.getKey();
         String type = entry.getValue();
-        String varName = fullKey.split(": ")[1];
+        String[] pathParts = fullKey.split(": ");
+        String varName = fullKey.split(": ")[pathParts.length-1];
         if (!fullKey.endsWith("_"))
             return LookupElementBuilder
                     .create(varName)
@@ -52,12 +50,48 @@ public class ModelLookUpElement {
             return null;
     }
 
+    //TODO: add filter to type
+    // For example, if model predicts next: "def fun(elem1:str, elem2:int) -> int"
+    // Than filter elements by their type (int as first, than str, the latest - Any) and show top N
+    // variants (as tuple or one by one, need more to google it)
+    public List<LookupElement> createTopNSuggestedVariablesTypes(Map<String, String> map, Integer n) {
+        Map<Boolean, List<Map.Entry<String, String>>> partitioned =
+                map
+                        .entrySet()
+                        .stream()
+                        .filter(e -> !e.getKey().endsWith("_"))
+                        .collect(Collectors.partitioningBy(
+                                //TODO: here change later to model predictions
+                                //Also think about multiple variables
+                                e -> e.getValue().startsWith("str")
+                        ));
+        if (partitioned.get(true).size() > n)
+            return partitioned
+                    .get(true)
+                    .stream()
+                    .map(this::createSuggestedVariableType)
+                    .limit(n)
+                    .collect(Collectors.toList());
+        else {
+            List<LookupElement> suitableType =
+                    partitioned
+                            .get(true)
+                            .stream()
+                            .map(this::createSuggestedVariableType)
+                            .collect(Collectors.toList());
+            List<LookupElement> unsuitableType =
+                    partitioned
+                            .get(false)
+                            .stream()
+                            .map(this::createSuggestedVariableType)
+                            .limit(n - partitioned.get(true).size())
+                            .collect(Collectors.toList());
+            suitableType.addAll(unsuitableType);
+            return suitableType;
+        }
+    }
+
     public List<LookupElement> createSuggestedVariablesTypes(Map<String, String> map) {
-        return map
-                .entrySet()
-                .stream()
-                .map(this::createSuggestedVariableType)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+        return createTopNSuggestedVariablesTypes(map, map.size());
     }
 }

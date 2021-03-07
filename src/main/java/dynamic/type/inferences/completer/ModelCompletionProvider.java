@@ -54,6 +54,7 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
     private static final String modelPath = PathManager.getConfigPath() + "/eeee.pt";
     private static final Integer modelPriority = Integer.MAX_VALUE - 99;
     private static final Integer elemPriority = Integer.MAX_VALUE - 100;
+    private static final Integer numElementsToShow = 5;
     private static final List<String> blackList = new ArrayList<String>() {{
         add("venv");
         add("idea");
@@ -218,8 +219,9 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
                                 Notifications.Bus.notify(notification.createInfoNotification());
                             }
 
+                            //default number of
                             List<LookupElement> suitableLookUpElements = modelLookUpElement
-                                    .createSuggestedVariablesTypes(suitableVariables);
+                                    .createTopNSuggestedVariablesTypes(suitableVariables, numElementsToShow);
                             suitableLookUpElements.stream()
                                     .map(suitableElem ->
                                             PrioritizedLookupElement.withPriority(suitableElem, elemPriority)
