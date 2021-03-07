@@ -1,4 +1,4 @@
-package dynamic.type.inferences.docProvider;
+package dynamic.type.inferences.documentationProvider;
 
 import ai.djl.modality.Classifications.Classification;
 import ai.djl.translate.TranslateException;
