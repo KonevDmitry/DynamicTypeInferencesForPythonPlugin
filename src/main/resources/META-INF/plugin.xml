@@ -1,7 +1,6 @@
-<!--<depends>ai.djl.engine</depends>-->
 <idea-plugin>
-    <id>com.github.konevdmitry.dynamictypereferencesforpythonplugin</id>
-    <name>DynamicTypeReferences</name>
+    <id>com.github.konevdmitry.dynamictypeinferencesforpythonplugin</id>
+    <name>DynamicTypeInferences</name>
 
     <depends>com.intellij.modules.python</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -11,7 +10,7 @@
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
 
 
-    <idea-version since-build="183.0"/>
+    <idea-version since-build="203.3645.34"/>
     <extensions defaultExtensionNs="com.intellij">
         <postStartupActivity
                 implementation="dynamic.type.inferences.startUpActive.StartUpActive"
@@ -25,5 +24,8 @@
         <lang.documentationProvider language="Python"
                                     implementationClass="dynamic.type.inferences.documentationProvider.ModelDocumentationProvider"
                                     order="first"/>
+
+        <notificationGroup id="VaDima Notification Group" displayType="BALLOON"/>
+
     </extensions>
 </idea-plugin>

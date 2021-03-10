@@ -36,6 +36,7 @@ val platformVersion: String by project
 val platformDownloadSources: String by project
 val pythonVersion: String by project
 val psiViewerVersion: String by project
+val platformPlugins: String by project
 val env: String? = System.getenv("CONNOTATOR_ENV")
 
 group = pluginGroup
@@ -88,7 +89,8 @@ intellij {
     version = platformVersion
     type = platformType
     downloadSources = platformDownloadSources.toBoolean()
-//    updateSinceUntilBuild = true
+    updateSinceUntilBuild = true
+    setPlugins(*platformPlugins.split(',').map(String::trim).filter(String::isNotEmpty).toTypedArray())
 }
 
 tasks {

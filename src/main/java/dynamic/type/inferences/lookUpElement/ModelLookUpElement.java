@@ -42,7 +42,7 @@ public class ModelLookUpElement {
                     .withItemTextForeground(JBColor.BLUE)
                     .withItemTextItalic(true)
                     .withBoldness(true)
-                    .withTailText(" Как-то так будет выглядеть", true)
+                    .withTailText(" VaDima plugin info", true)
                     .withIcon(PlatformIcons.VARIABLE_ICON)
                     .withTypeText(" Variable type: ".concat(type))
                     .withTypeIconRightAligned(true);
