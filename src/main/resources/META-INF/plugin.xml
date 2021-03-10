@@ -25,7 +25,7 @@
                                     implementationClass="dynamic.type.inferences.documentationProvider.ModelDocumentationProvider"
                                     order="first"/>
 
-        <notificationGroup id="VaDima Notification Group" displayType="BALLOON"/>
+<!--        <notificationGroup id="VaDima Notification Group" displayType="BALLOON"/>-->
 
     </extensions>
 </idea-plugin>
