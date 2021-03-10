@@ -4,13 +4,11 @@ import com.intellij.notification.*;
 
 
 public class ModelNotLoadedNotification {
-    private static final NotificationGroup BALOON_GROUP =
-            new NotificationGroup("VaDima Notificaion Group",
-                    NotificationDisplayType.BALLOON, true);
 
     public Notification createInfoNotification() {
-
-        return BALOON_GROUP
+        return NotificationGroupManager
+                .getInstance()
+                .getNotificationGroup("VaDima Notification Group")
                 .createNotification(
                         "VaDima plugin info",
                         "Model not loaded",
@@ -19,7 +17,9 @@ public class ModelNotLoadedNotification {
     }
 
     public Notification createErrorNotification() {
-        return BALOON_GROUP
+        return NotificationGroupManager
+                .getInstance()
+                .getNotificationGroup("VaDima Notification Group")
                 .createNotification(
                         "VaDima plugin error",
                         "Model was not loaded correctly. Trying to reload.",

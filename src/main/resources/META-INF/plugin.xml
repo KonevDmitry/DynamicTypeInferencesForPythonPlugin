@@ -5,7 +5,7 @@
     <depends>com.intellij.modules.python</depends>
     <depends>com.intellij.modules.lang</depends>
     <vendor>DynamicInference</vendor>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <!-- Product and plugin compatibility requirements -->
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
 
@@ -25,7 +25,7 @@
                                     implementationClass="dynamic.type.inferences.documentationProvider.ModelDocumentationProvider"
                                     order="first"/>
 
-<!--        <notificationGroup id="VaDima Notification Group" displayType="BALLOON"/>-->
+        <notificationGroup id="VaDima Notification Group" displayType="BALLOON"/>
 
     </extensions>
 </idea-plugin>
