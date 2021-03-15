@@ -5,6 +5,8 @@ import ai.djl.translate.TranslateException;
 import com.dropbox.core.DbxException;
 import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.navigation.action.GotoDeclarationUtil;
+import com.intellij.codeInsight.navigation.actions.GotoDeclarationAction;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.editor.CaretModel;
@@ -25,6 +27,7 @@ import com.intellij.util.ProcessingContext;
 import com.jetbrains.python.PythonFileType;
 import com.jetbrains.python.documentation.PythonDocumentationProvider;
 import com.jetbrains.python.psi.*;
+import com.jetbrains.python.psi.impl.PyFileImpl;
 import com.jetbrains.python.psi.impl.PyGotoDeclarationHandler;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
@@ -36,6 +39,7 @@ import dynamic.type.inferences.startUpActive.StartUpActive;
 import dynamic.type.inferences.visitors.AllUserFunctionsVisitor;
 import dynamic.type.inferences.visitors.VariablesVisitor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.*;
@@ -100,10 +104,8 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
                 try {
                     // get current function at callee position and check if it is
                     // in user-defined functions
-                    PyFunction pyFunction = (PyFunction)
-                            handler.getGotoDeclarationTarget(callee, parameters.getEditor());
-
-                    if (pyFunction != null) {
+                    PsiElement pyFunction = handler.getGotoDeclarationTarget(callee, parameters.getEditor());
+                    if (pyFunction instanceof PyFunction) {
                         String funcFilePath =
                                 pyFunction
                                         .getContainingFile()

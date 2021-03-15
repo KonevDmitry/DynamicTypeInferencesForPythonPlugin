@@ -6,8 +6,8 @@
 
 ## Plugin principles of work
 
-When the user installs the plugin, the model is downloaded to the plugin config folder (later will be shown example). If
-the user uses type hints for variable suggestions for the call of user-defined function during the model load then he
+When the user installs the plugin, the model is downloaded to the plugin config folder. By default, this is PyCharm config folder:
+```~/.config/JetBrains/PyCharm<PyCharmVersion>```. If a programmer uses type hints for variable suggestions for the call of user-defined function during the model load then he
 will be notified about it.
 
 ### How the model is downloaded?
