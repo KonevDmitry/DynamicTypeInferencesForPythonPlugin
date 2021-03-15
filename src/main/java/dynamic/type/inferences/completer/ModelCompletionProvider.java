@@ -15,6 +15,7 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ContentIterator;
 import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -86,7 +87,7 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
             EditorFactory
                     .getInstance()
                     .getEventMulticaster()
-                    .addDocumentListener(new ModelDocumentListener());
+                    .addDocumentListener(new ModelDocumentListener(), Disposer.newDisposable());
 
             // Typing case
             getData(project);

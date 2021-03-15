@@ -1,0 +1,31 @@
+<idea-plugin>
+    <id>com.github.konevdmitry.dynamictypeinferencesforpythonplugin</id>
+    <name>DynamicTypeInferences</name>
+
+    <depends>com.intellij.modules.python</depends>
+    <depends>com.intellij.modules.lang</depends>
+    <vendor>DynamicInference</vendor>
+    <version>0.0.2</version>
+    <!-- Product and plugin compatibility requirements -->
+    <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
+
+
+    <idea-version since-build="203.3645.34"/>
+    <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity
+                implementation="dynamic.type.inferences.startUpActive.StartUpActive"
+                order="first"/>
+
+        <completion.contributor implementationClass="dynamic.type.inferences.completer.PyVarsForFuncCompleter"
+                                language="Python"
+                                order="first"
+        />
+
+        <lang.documentationProvider language="Python"
+                                    implementationClass="dynamic.type.inferences.documentationProvider.ModelDocumentationProvider"
+                                    order="first"/>
+
+        <notificationGroup id="VaDima Notification Group" displayType="BALLOON"/>
+
+    </extensions>
+</idea-plugin>
