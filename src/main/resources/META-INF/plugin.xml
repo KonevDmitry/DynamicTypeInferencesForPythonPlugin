@@ -10,7 +10,7 @@
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
 
 
-    <idea-version since-build="193.7288.30"/>
+    <idea-version since-build="203.5981.165"/>
     <extensions defaultExtensionNs="com.intellij">
         <postStartupActivity
                 implementation="dynamic.type.inferences.startUpActive.StartUpActive"
