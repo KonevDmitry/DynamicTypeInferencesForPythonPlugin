@@ -100,7 +100,7 @@ tasks {
     }
     listOf("compileKotlin", "compileTestKotlin").forEach {
         getByName<KotlinCompile>(it) {
-            kotlinOptions.jvmTarget = "11"
+            kotlinOptions.jvmTarget = "1.8"
         }
     }
 
