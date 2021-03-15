@@ -1,15 +1,12 @@
 package dynamic.type.inferences.visitors;
 
-import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.file.PsiDirectoryImpl;
 import com.jetbrains.python.psi.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class VariablesVisitor extends PyRecursiveElementVisitor {
     private final Map<String, PyTargetExpression> variablesMap = new HashMap<>();

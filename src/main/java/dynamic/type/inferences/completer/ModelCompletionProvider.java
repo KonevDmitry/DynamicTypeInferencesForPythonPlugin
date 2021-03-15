@@ -5,8 +5,6 @@ import ai.djl.translate.TranslateException;
 import com.dropbox.core.DbxException;
 import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.codeInsight.navigation.action.GotoDeclarationUtil;
-import com.intellij.codeInsight.navigation.actions.GotoDeclarationAction;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.editor.CaretModel;
