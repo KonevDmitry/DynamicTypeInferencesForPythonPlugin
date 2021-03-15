@@ -39,7 +39,6 @@ import dynamic.type.inferences.startUpActive.StartUpActive;
 import dynamic.type.inferences.visitors.AllUserFunctionsVisitor;
 import dynamic.type.inferences.visitors.VariablesVisitor;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.*;
@@ -105,6 +104,9 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
                     // get current function at callee position and check if it is
                     // in user-defined functions
                     PsiElement pyFunction = handler.getGotoDeclarationTarget(callee, parameters.getEditor());
+                    //There are cases when user can call variable and function the same.
+                    // For such cases PyCharm returns only first occurrences - variable what causes errors
+                    // so, user should firstly refactor his code (rename function/variable)
                     if (pyFunction instanceof PyFunction) {
                         String funcFilePath =
                                 pyFunction
