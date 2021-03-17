@@ -13,13 +13,15 @@
     <idea-version since-build="203.5981.165"/>
     <extensions defaultExtensionNs="com.intellij">
         <postStartupActivity
-                implementation="dynamic.type.inferences.startUpActive.StartUpActive"
+                implementation="dynamic.type.inferences.startUpActive.ModelStartUpActive"
                 order="first"/>
+
+        <postStartupActivity implementation="dynamic.type.inferences.startUpActive.ShowClassesStartUpActive"
+        order="last"/>
 
         <completion.contributor implementationClass="dynamic.type.inferences.completer.PyVarsForFuncCompleter"
                                 language="Python"
-                                order="first"
-        />
+                                order="first"/>
 
         <lang.documentationProvider language="Python"
                                     implementationClass="dynamic.type.inferences.documentationProvider.ModelDocumentationProvider"
@@ -27,5 +29,6 @@
 
         <notificationGroup id="VaDima Notification Group" displayType="BALLOON"/>
 
+        <projectService serviceImplementation="dynamic.type.inferences.windowOnStartUp.WindowExistingClasses"/>
     </extensions>
 </idea-plugin>

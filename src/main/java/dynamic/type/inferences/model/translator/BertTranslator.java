@@ -19,12 +19,17 @@ public class BertTranslator implements Translator<String, Classifications> {
     private final BertFullTokenizer tokenizer;
     private final SimpleVocabulary vocab;
     private final List<String> ranks;
+    private static final RanksGetter ranksGetter = new RanksGetter();
 
     public BertTranslator(BertFullTokenizer tokenizer) {
         this.tokenizer = tokenizer;
         this.vocab = tokenizer.getVocabulary();
-        //TODO: get ranks for our own model
-        this.ranks = Arrays.asList("Negative", "Neutral", "Positive", "12", "13","14","15");
+        //TODO: get ranks for our own model (e.g. from file or some kind of)
+        this.ranks = ranksGetter.getRanksFromFile();
+    }
+
+    public List<String> getRanks() {
+        return ranks;
     }
 
     @Override

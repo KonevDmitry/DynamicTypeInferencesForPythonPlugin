@@ -17,14 +17,14 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
-public class StartUpActive implements StartupActivity {
+public class ModelStartUpActive implements StartupActivity {
     private static final TorchBert torchBert = new TorchBert();
 
     public static TorchBert getTorchBertInstance() {
         return torchBert;
     }
 
-    public StartUpActive() {
+    public ModelStartUpActive() {
     }
 
 //    @Override
@@ -50,7 +50,7 @@ public class StartUpActive implements StartupActivity {
     @Override
     public void runActivity(@NotNull Project project) {
         ProgressManager.getInstance().run(
-                new Task.Backgroundable(project, "VaDima Loader") {
+                new Task.Backgroundable(project, "VaDima loader") {
                     public void run(@NotNull ProgressIndicator indicator) {
                         indicator.setIndeterminate(true);
                         indicator.setText("Loading model. Please wait...");

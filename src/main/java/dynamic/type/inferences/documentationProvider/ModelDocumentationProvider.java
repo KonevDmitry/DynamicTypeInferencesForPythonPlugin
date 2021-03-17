@@ -13,7 +13,7 @@ import com.jetbrains.python.psi.PyFunction;
 import dynamic.type.inferences.model.loader.BertModelLoader;
 import dynamic.type.inferences.model.runner.TorchBert;
 import dynamic.type.inferences.notification.ModelNotLoadedNotification;
-import dynamic.type.inferences.startUpActive.StartUpActive;
+import dynamic.type.inferences.startUpActive.ModelStartUpActive;
 import dynamic.type.inferences.visitors.AllUserFunctionsVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class ModelDocumentationProvider extends PythonDocumentationProvider {
-    private final TorchBert torchBert = StartUpActive.getTorchBertInstance();
+    private final TorchBert torchBert = ModelStartUpActive.getTorchBertInstance();
     private final AllUserFunctionsVisitor visitor = new AllUserFunctionsVisitor();
     private final Object sharedObject = new Object();
     private final BertModelLoader loader = new BertModelLoader(sharedObject);
