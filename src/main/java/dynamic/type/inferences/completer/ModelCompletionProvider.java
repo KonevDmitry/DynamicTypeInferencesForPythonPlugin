@@ -6,6 +6,7 @@ import com.dropbox.core.DbxException;
 import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.notification.Notifications;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.editor.CaretModel;
@@ -28,6 +29,7 @@ import com.jetbrains.python.PythonFileType;
 import com.jetbrains.python.documentation.PythonDocumentationProvider;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.PyGotoDeclarationHandler;
+import com.jetbrains.python.psi.impl.PythonASTFactory;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dynamic.type.inferences.lookUpElement.ModelLookUpElement;
@@ -44,10 +46,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ModelCompletionProvider extends CompletionProvider<CompletionParameters> {
-
     private Project project;
     private Map<String, String> suitableVariables = new HashMap<>();
 
+    private final ModelDocumentListener modelDocumentListener = new ModelDocumentListener();
     private final StringBuilder allFullCode = new StringBuilder();
     private final Map<String, String> allFunctionCodeMap = new HashMap<>();
     private final Map<String, PyTargetExpression> allVariablesMap = new HashMap<>();
@@ -89,7 +91,7 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
             EditorFactory
                     .getInstance()
                     .getEventMulticaster()
-                    .addDocumentListener(new ModelDocumentListener(), Disposer.newDisposable());
+                    .addDocumentListener(modelDocumentListener, project);
 
             // Typing case
             getData(project);
@@ -116,7 +118,6 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
                         String key = funcFilePath
                                 .concat("/")
                                 .concat(pyFunction.getText());
-
                         //user variables only
                         if (allFunctionCodeMap.containsKey(key)) {
                             //get default completion result list and filter it

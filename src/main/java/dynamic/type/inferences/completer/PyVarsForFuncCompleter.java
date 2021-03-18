@@ -18,9 +18,4 @@ public class PyVarsForFuncCompleter extends CompletionContributor {
                 new ModelCompletionProvider());
     }
 
-    @Override
-    public void fillCompletionVariants(@NotNull final CompletionParameters parameters,
-                                       @NotNull CompletionResultSet result) {
-        super.fillCompletionVariants(parameters, result);
-    }
 }

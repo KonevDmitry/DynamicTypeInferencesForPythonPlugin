@@ -29,6 +29,7 @@
 
         <notificationGroup id="VaDima Notification Group" displayType="BALLOON"/>
 
-        <projectService serviceImplementation="dynamic.type.inferences.windowOnStartUp.WindowExistingClasses"/>
+        <applicationService
+                serviceImplementation="dynamic.type.inferences.windowOnStartUp.ModelDoNotShowOption"/>
     </extensions>
 </idea-plugin>
