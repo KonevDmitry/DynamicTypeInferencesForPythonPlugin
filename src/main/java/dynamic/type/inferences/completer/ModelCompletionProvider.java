@@ -101,7 +101,7 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
                         .getParentOfType(currentElem, PyCallExpression.class);
                 PyExpression callee = Objects.requireNonNull(callExpression).getCallee();
                 PyGotoDeclarationHandler handler = new PyGotoDeclarationHandler();
-                try {
+//                try {
                     // get current function at callee position and check if it is
                     // in user-defined functions
                     PsiElement pyFunction = handler.getGotoDeclarationTarget(callee, parameters.getEditor());
@@ -208,14 +208,15 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
                                     });
                                 } catch (TranslateException e) {
                                     // never should happen, just in case
+                                    //TODO: in current version happens when function body is really huge
                                     ModelNotLoadedNotification notification = new ModelNotLoadedNotification();
                                     Notifications.Bus.notify(notification.createErrorNotification());
 
-                                    BertModelLoader loader = new BertModelLoader(sharedObject);
-                                    loader.loadTo(modelPath);
-                                    synchronized (sharedObject) {
-                                        torchBert.setInitialized(true);
-                                    }
+//                                    BertModelLoader loader = new BertModelLoader(sharedObject);
+//                                    loader.loadTo(modelPath);
+//                                    synchronized (sharedObject) {
+//                                        torchBert.setInitialized(true);
+//                                    }
                                 }
                             }
                             // if model is not initialized then notify about it
@@ -233,13 +234,13 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
                                     ).forEach(resultSetWithPrefix::addElement);
                         }
                     }
-                } catch (IOException | DbxException ignored) {
-                    // There are cases when model cannot process input
-                    // (e.g. when commit is too huge [150+ lines of comments])
-                    // that is why prediction crashes.
-                    // For such cases predictions will not be shown and other processes
-                    // will continue their default work.
-                }
+//                } catch (IOException | DbxException ignored) {
+//                    // There are cases when model cannot process input
+//                    // (e.g. when commit is too huge [150+ lines of comments])
+//                    // that is why prediction crashes.
+//                    // For such cases predictions will not be shown and other processes
+//                    // will continue their default work.
+//                }
             }
             result.restartCompletionOnAnyPrefixChange();
             result.runRemainingContributors(parameters, true);

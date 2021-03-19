@@ -99,15 +99,15 @@ public class ModelDocumentationProvider extends PythonDocumentationProvider {
                         return defaultString;
                 } catch (TranslateException e) {
                     // never should happen in normal situation, just in case
-                    try {
-                        loader.loadTo(modelPath);
-                        synchronized (sharedObject) {
-                            torchBert.setInitialized(true);
-                        }
-                    } catch (IOException | DbxException ignored) {
-                        ModelNotLoadedNotification notification = new ModelNotLoadedNotification();
-                        Notifications.Bus.notify(notification.createErrorNotification());
-                    }
+//                    try {
+//                        loader.loadTo(modelPath);
+//                        synchronized (sharedObject) {
+//                            torchBert.setInitialized(true);
+//                        }
+//                    } catch (IOException | DbxException ignored) {
+                    ModelNotLoadedNotification notification = new ModelNotLoadedNotification();
+                    Notifications.Bus.notify(notification.createErrorNotification());
+//                    }
                 }
             } else
                 return defaultString;

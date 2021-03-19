@@ -22,8 +22,8 @@ public class ModelNotLoadedNotification {
                 .getNotificationGroup("VaDima Notification Group")
                 .createNotification(
                         "VaDima plugin error",
-                        "Model was not loaded correctly. Trying to reload.",
-                        "Trying to reload...\n",
+                        "Input function is too huge.",
+                        "Function cannot be preprocessed.",
                         NotificationType.ERROR);
     }
 }
