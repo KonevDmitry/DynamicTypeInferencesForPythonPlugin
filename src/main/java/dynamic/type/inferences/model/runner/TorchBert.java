@@ -1,28 +1,34 @@
 package dynamic.type.inferences.model.runner;
 
-import ai.djl.*;
+import ai.djl.Application;
+import ai.djl.MalformedModelException;
 import ai.djl.engine.EngineException;
 import ai.djl.inference.Predictor;
 import ai.djl.modality.Classifications;
 import ai.djl.modality.Classifications.Classification;
 import ai.djl.modality.nlp.SimpleVocabulary;
-import ai.djl.modality.nlp.bert.BertFullTokenizer;
-import ai.djl.repository.zoo.*;
+import ai.djl.repository.zoo.Criteria;
+import ai.djl.repository.zoo.ModelNotFoundException;
+import ai.djl.repository.zoo.ModelZoo;
+import ai.djl.repository.zoo.ZooModel;
 import ai.djl.training.util.ProgressBar;
-import ai.djl.translate.*;
+import ai.djl.translate.TranslateException;
+import com.dropbox.core.DbxException;
+import com.intellij.openapi.application.PathManager;
+import dynamic.type.inferences.model.loader.BertModelLoader;
+import dynamic.type.inferences.model.runner.Tokenizer.ModelBertFullTokenizer;
+import dynamic.type.inferences.model.translator.BertTranslator;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import com.dropbox.core.DbxException;
-import com.intellij.openapi.application.PathManager;
-import dynamic.type.inferences.model.loader.BertModelLoader;
-import dynamic.type.inferences.model.translator.BertTranslator;
 
 
 public class TorchBert {
@@ -77,16 +83,25 @@ public class TorchBert {
                     .add(brVocab
                             .lines()
                             .collect(Collectors.toList()))
-                    .optUnknownToken("[UNK]")
+                    .optUnknownToken("<unk>")
+                    .optReservedTokens(new ArrayList<String>(){{
+                        add("<s>");
+                        add("</s>");
+                        add("<pad>");
+                        add("<mask>");
+                    }})
                     .build();
 
-            BertFullTokenizer tokenizer = new BertFullTokenizer(vocabulary, true);
+            ModelBertFullTokenizer tokenizer = new ModelBertFullTokenizer(vocabulary, true);
+//            BertFullTokenizer tokenizer = new BertFullTokenizer(vocabulary, true);
             BertTranslator translator = new BertTranslator(tokenizer);
 
+            //TODO: Димон, херня полная. Мы не знаем, почему работает на GPU. Но она работает
+            //P.S. Теперь пользователи должны поставить себе куду на комп, чтобы плагин работал))
             Criteria<String, Classifications> criteria =
                     Criteria.builder()
                             .optApplication(Application.NLP.SENTIMENT_ANALYSIS)
-                            .optDevice(Device.cpu())
+//                            .optDevice(Device.cpu())
                             .setTypes(String.class, Classifications.class)
                             .optModelUrls(path)
                             .optTranslator(translator)
