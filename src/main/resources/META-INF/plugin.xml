@@ -31,5 +31,10 @@
 
         <applicationService
                 serviceImplementation="dynamic.type.inferences.windowOnStartUp.ModelDoNotShowOption"/>
+
+        <applicationConfigurable parentId="tools" instance="dynamic.type.inferences.notification.settings.ModelSettingsConfigurable"
+                                 id="org.intellij.sdk.settings.AppSettingsConfigurable"
+                                 displayName="VaDima Settings"/>
+
     </extensions>
 </idea-plugin>

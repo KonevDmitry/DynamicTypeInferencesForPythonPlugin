@@ -9,31 +9,36 @@ import com.intellij.notification.Notifications;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
+import com.intellij.openapi.components.ComponentManager;
+import com.intellij.openapi.components.Service;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.CaretModel;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.actionSystem.EditorActionManager;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
+import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.roots.ContentIterator;
 import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.impl.PsiDocumentManagerImpl;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
 import com.jetbrains.python.PythonFileType;
 import com.jetbrains.python.documentation.PythonDocumentationProvider;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.PyGotoDeclarationHandler;
-import com.jetbrains.python.psi.impl.PythonASTFactory;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dynamic.type.inferences.lookUpElement.ModelLookUpElement;
-import dynamic.type.inferences.model.loader.BertModelLoader;
 import dynamic.type.inferences.model.runner.TorchBert;
 import dynamic.type.inferences.notification.ModelNotLoadedNotification;
 import dynamic.type.inferences.startUpActive.ModelStartUpActive;
@@ -57,9 +62,9 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
     private final Object sharedObject = new Object();
 
     private static final String modelPath = PathManager.getConfigPath() + "/eeee.pt";
-    private static final Integer modelPriority = Integer.MAX_VALUE - 99;
-    private static final Integer elemPriority = Integer.MAX_VALUE - 100;
-    private static final Integer numElementsToShow = 5;
+    private static final Integer MODEL_PRIORITY = Integer.MAX_VALUE - 99;
+    private static final Integer ELEM_PRIORITY = Integer.MAX_VALUE - 100;
+    private static final Integer NUM_ELEMENTS_TO_SHOW = 5;
     private static final List<String> blackList = new ArrayList<String>() {{
         add("venv");
         add("idea");
@@ -91,7 +96,8 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
             EditorFactory
                     .getInstance()
                     .getEventMulticaster()
-                    .addDocumentListener(modelDocumentListener, project);
+                    .addDocumentListener(modelDocumentListener,
+                            Disposer.newDisposable());
 
             // Typing case
             getData(project);
@@ -204,10 +210,9 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
                                         LookupElement element = modelLookUpElement.createModelElement(predict);
                                         resultSetWithPrefix.addElement(
                                                 PrioritizedLookupElement
-                                                        .withPriority(element, modelPriority + predict.getProbability()));
+                                                        .withPriority(element, MODEL_PRIORITY + predict.getProbability()));
                                     });
-                                } catch (TranslateException e) {
-                                    // never should happen, just in case
+                                } catch (TranslateException ignored) {
                                     //TODO: in current version happens when function body is really huge
                                     ModelNotLoadedNotification notification = new ModelNotLoadedNotification();
                                     Notifications.Bus.notify(notification.createErrorNotification());
@@ -227,14 +232,16 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
 
                             //default number of
                             List<LookupElement> suitableLookUpElements = modelLookUpElement
-                                    .createTopNSuggestedVariablesTypes(suitableVariables, numElementsToShow);
+                                    .createTopNSuggestedVariablesTypes(suitableVariables, NUM_ELEMENTS_TO_SHOW);
                             suitableLookUpElements.stream()
                                     .map(suitableElem ->
-                                            PrioritizedLookupElement.withPriority(suitableElem, elemPriority)
+                                            PrioritizedLookupElement.withPriority(suitableElem, ELEM_PRIORITY)
                                     ).forEach(resultSetWithPrefix::addElement);
                         }
                     }
-//                } catch (IOException | DbxException ignored) {
+//                }
+                //TODO: remove later when it will be certain that model doesn;t need to be reloaded
+//                catch (IOException | DbxException ignored) {
 //                    // There are cases when model cannot process input
 //                    // (e.g. when commit is too huge [150+ lines of comments])
 //                    // that is why prediction crashes.

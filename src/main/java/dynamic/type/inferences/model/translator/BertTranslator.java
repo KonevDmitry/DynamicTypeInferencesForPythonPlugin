@@ -2,7 +2,6 @@ package dynamic.type.inferences.model.translator;
 
 import ai.djl.modality.Classifications;
 import ai.djl.modality.nlp.SimpleVocabulary;
-import ai.djl.modality.nlp.bert.BertFullTokenizer;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
@@ -10,26 +9,25 @@ import ai.djl.translate.Batchifier;
 import ai.djl.translate.StackBatchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
+import dynamic.type.inferences.model.runner.Tokenizer.ModelBertFullTokenizer;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class BertTranslator implements Translator<String, Classifications> {
 
-    private final BertFullTokenizer tokenizer;
+    private final ModelBertFullTokenizer tokenizer;
+//    private final BertFullTokenizer tokenizer;
     private final SimpleVocabulary vocab;
     private final List<String> ranks;
+
     private static final RanksGetter ranksGetter = new RanksGetter();
 
-    public BertTranslator(BertFullTokenizer tokenizer) {
+    public BertTranslator(ModelBertFullTokenizer tokenizer) {
+//    public BertTranslator(BertFullTokenizer tokenizer) {
         this.tokenizer = tokenizer;
         this.vocab = tokenizer.getVocabulary();
-        //TODO: get ranks for our own model (e.g. from file or some kind of)
         this.ranks = ranksGetter.getRanksFromFile();
-    }
-
-    public List<String> getRanks() {
-        return ranks;
     }
 
     @Override
