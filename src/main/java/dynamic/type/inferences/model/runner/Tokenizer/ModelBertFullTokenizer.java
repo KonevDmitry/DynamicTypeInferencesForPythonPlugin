@@ -2,7 +2,6 @@ package dynamic.type.inferences.model.runner.Tokenizer;
 
 import ai.djl.modality.nlp.NlpUtils;
 import ai.djl.modality.nlp.SimpleVocabulary;
-import ai.djl.modality.nlp.bert.WordpieceTokenizer;
 import ai.djl.modality.nlp.preprocess.*;
 
 import java.text.Normalizer;
@@ -52,6 +51,7 @@ public class ModelBertFullTokenizer extends SimpleTokenizer {
 
         processors.add(new TextCleaner(NlpUtils::isWhiteSpace, ' '));
         processors.add(new SimpleTokenizer());
+        processors.add(new GTokenizer());
         processors.add(new PunctuationSeparator());
         return processors;
     }

@@ -59,7 +59,7 @@ public class ModelLookUpElement {
                 map
                         .entrySet()
                         .stream()
-                        .filter(e -> !e.getKey().endsWith("_"))
+//                        .filter(e -> !e.getKey().endsWith("_"))
                         .collect(Collectors.partitioningBy(
                                 //TODO: here change later to model predictions
                                 //Also think about multiple variables

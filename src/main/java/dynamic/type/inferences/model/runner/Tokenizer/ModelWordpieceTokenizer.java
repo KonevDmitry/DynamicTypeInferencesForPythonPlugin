@@ -38,9 +38,6 @@ public class ModelWordpieceTokenizer extends SimpleTokenizer {
                 while (start < end) {
                     sb.setLength(0);
                     sb.append(token, start, end);
-                    if (start > 0) {
-                        sb.insert(0, "Ġ");
-                    }
                     String subString = sb.toString();
                     if (vocabulary.contains(subString)) {
                         currentSubString = subString;
