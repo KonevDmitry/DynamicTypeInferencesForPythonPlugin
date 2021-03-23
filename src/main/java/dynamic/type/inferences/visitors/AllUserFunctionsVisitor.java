@@ -13,6 +13,7 @@ import java.util.Objects;
  * too much time. The only thing that works fast is ctrl+mouse action (getting documentation).
  * So, predictions are available via fast documentation for all functions.
  */
+//TODO: delete when it will be clear that it is not needed
 public class AllUserFunctionsVisitor extends PyRecursiveElementVisitor {
     private final StringBuilder fullCode = new StringBuilder();
     private final Map<String, String> functionCodeMap = new HashMap<>();
@@ -43,15 +44,4 @@ public class AllUserFunctionsVisitor extends PyRecursiveElementVisitor {
             super.visitPyFunction(node);
         }
     }
-
-    //                        @Override
-//                        public void visitElement(PsiElement element){
-//                            // вот тут подумать, как доставать все функции, которые не def
-////                            MethodCallExpression callExpression = new MethodCallExpression();
-//                            //P.S ну рекурсия, да, а чё ещё
-//                            for(PsiElement elem: element.getChildren()){
-//                                System.out.println(elem.getText()+"sacs"+elem.getNode());
-//
-//                            }
-//                        }
 }
