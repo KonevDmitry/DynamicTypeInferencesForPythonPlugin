@@ -17,7 +17,7 @@
                 order="first"/>
 
         <postStartupActivity implementation="dynamic.type.inferences.startUpActive.ShowClassesStartUpActive"
-        order="last"/>
+                             order="last"/>
 
         <completion.contributor implementationClass="dynamic.type.inferences.completer.PyVarsForFuncCompleter"
                                 language="Python"
@@ -32,9 +32,11 @@
         <applicationService
                 serviceImplementation="dynamic.type.inferences.windowOnStartUp.ModelDoNotShowOption"/>
 
-        <applicationConfigurable parentId="tools" instance="dynamic.type.inferences.notification.settings.ModelSettingsConfigurable"
+        <applicationConfigurable parentId="tools"
+                                 instance="dynamic.type.inferences.notification.settings.ModelSettingsConfigurable"
                                  id="org.intellij.sdk.settings.AppSettingsConfigurable"
                                  displayName="VaDima Settings"/>
 
+<!--        <fileBasedIndex implementation="dynamic.type.inferences.index.ModelFunctionIndex"/>-->
     </extensions>
 </idea-plugin>

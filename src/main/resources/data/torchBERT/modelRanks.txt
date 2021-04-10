@@ -1,7 +1,20 @@
-Negative
-Neutral
-Positive
-12
-13
-14
-15
+<UNK>
+Any
+ConfigType
+Dict[str, Any]
+HomeAssistant
+HomeAssistantType
+HttpRequest
+List[str]
+Optional[str]
+Path
+UserProfile
+argparse.Namespace
+bool
+bytes
+dict
+float
+int
+np.ndarray
+str
+torch.Tensor

@@ -17,8 +17,8 @@ public class BertModelLoader {
     }
 
     public void loadTo(String pathToLoad) throws IOException, DbxException {
+        // model loading process with connection to DropBox api
         DbxRequestConfig config = new DbxRequestConfig("BertModelLoader");
-
         URL url = getClass().getClassLoader().getResource("/data/torchBERT/token");
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(
@@ -28,7 +28,7 @@ public class BertModelLoader {
         reader.close();
         DbxClientV2 client = new DbxClientV2(config, token);
         OutputStream outputStream = new FileOutputStream(pathToLoad);
-        FileMetadata metadata = client
+        client
                 .files()
                 .downloadBuilder("/eeee.pt")
                 .download(outputStream);

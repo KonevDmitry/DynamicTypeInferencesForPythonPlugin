@@ -24,7 +24,6 @@ plugins {
     id("io.gitlab.arturbosch.detekt") version "1.11.0"
 }
 
-// Import variables from gradle.properties file
 val pluginGroup: String by project
 val pluginName: String by project
 val pluginVersion: String by project
@@ -51,6 +50,7 @@ repositories {
 
 dependencies {
     implementation("org.junit.jupiter:junit-jupiter:5.4.2")
+    implementation("org.jetbrains:annotations:20.1.0")
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.11.0")
 
     testImplementation(kotlin("test-junit"))
@@ -82,6 +82,8 @@ dependencies {
     runtimeOnly("ai.djl.pytorch:pytorch-native-cpu:1.7.0")
     implementation("ai.djl.pytorch:pytorch-model-zoo:0.9.0")
     implementation("com.dropbox.core:dropbox-core-sdk:3.1.5")
+
+    implementation("com.flipkart.utils:javatuples:3.0")
 }
 
 intellij {
@@ -116,7 +118,7 @@ tasks {
         // Extract the <!-- Plugin description --> section from README.md and provide for the plugin's manifest
         pluginDescription(
             closure {
-                File("./README.md").readText().lines().run {
+                File(projectDir, "README.md").readText().lines().run {
                     val start = "<!-- Plugin description -->"
                     val end = "<!-- Plugin description end -->"
                     if (!containsAll(listOf(start, end))) {

@@ -37,31 +37,31 @@ public class WindowExistingClasses extends DialogWrapper {
     @Nullable
     protected JComponent createCenterPanel() {
         ModelDoNotShowOption.VaDimaState vaDimaState = modelDoNotShowOption.getState();
-            JPanel jPanel = new JPanel(new BorderLayout());
-            RanksGetter ranksGetter = new RanksGetter();
-            List<String> ranks = ranksGetter.getRanksFromFile();
-            JBList<String> jbList = new JBList<>(ranks);
-            JBScrollPane scrollPane = new JBScrollPane(jbList);
+        JPanel jPanel = new JPanel(new BorderLayout());
+        RanksGetter ranksGetter = new RanksGetter();
+        List<String> ranks = ranksGetter.getRanksFromFile();
+        JBList<String> jbList = new JBList<>(ranks);
+        JBScrollPane scrollPane = new JBScrollPane(jbList);
 
-            scrollPane.createVerticalScrollBar();
-            JLabel jLabel = new JLabel(
-                    HTML_OPEN_TAG
-                            .concat(DEFINITION_START)
-                            .concat("Thanks for downloading VaDima plugin!")
-                            .concat(DEFINITION_END)
-                            .concat(HTML_NEW_LINE)
-                            .concat(SECTIONS_START)
-                            .concat("VaDima can recognize next variable types:")
-                            .concat(HTML_CLOSE_TAG)
-            );
+        scrollPane.createVerticalScrollBar();
+        JLabel jLabel = new JLabel(
+                HTML_OPEN_TAG
+                        .concat(DEFINITION_START)
+                        .concat("Thanks for downloading VaDima plugin!")
+                        .concat(DEFINITION_END)
+                        .concat(HTML_NEW_LINE)
+                        .concat(SECTIONS_START)
+                        .concat("VaDima can recognize next variable types:")
+                        .concat(HTML_CLOSE_TAG)
+        );
 
-            JBCheckBox checkBox = new JBCheckBox("Never show again");
-            jPanel.add(jLabel, BorderLayout.NORTH);
-            jPanel.add(scrollPane, BorderLayout.CENTER);
-            jPanel.add(checkBox, BorderLayout.AFTER_LAST_LINE);
-            checkBox.addChangeListener(e -> {
-                vaDimaState.toBeShown = checkBox.isSelected();
-            });
-            return jPanel;
-        }
+        JBCheckBox checkBox = new JBCheckBox("Never show again");
+        jPanel.add(jLabel, BorderLayout.NORTH);
+        jPanel.add(scrollPane, BorderLayout.CENTER);
+        jPanel.add(checkBox, BorderLayout.AFTER_LAST_LINE);
+        checkBox.addChangeListener(e -> {
+            vaDimaState.toBeShown = checkBox.isSelected();
+        });
+        return jPanel;
+    }
 }

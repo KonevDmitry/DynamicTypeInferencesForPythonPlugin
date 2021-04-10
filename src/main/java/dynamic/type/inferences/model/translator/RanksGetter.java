@@ -16,7 +16,6 @@ public class RanksGetter {
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(
                             Objects.requireNonNull(url).openStream()));
-
             List<String> ranks = reader.lines().collect(Collectors.toList());
             reader.close();
             return ranks;

@@ -9,7 +9,6 @@ import com.intellij.openapi.application.PathManager;
 import com.intellij.psi.PsiElement;
 import com.jetbrains.python.documentation.PythonDocumentationProvider;
 import com.jetbrains.python.psi.PyFunction;
-import com.jetbrains.python.psi.impl.PyFunctionImpl;
 import dynamic.type.inferences.model.loader.BertModelLoader;
 import dynamic.type.inferences.model.runner.TorchBert;
 import dynamic.type.inferences.notification.ModelNotLoadedNotification;
@@ -20,8 +19,8 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.util.List;
 
-import static com.intellij.lang.documentation.DocumentationMarkup.DEFINITION_START;
 import static com.intellij.lang.documentation.DocumentationMarkup.DEFINITION_END;
+import static com.intellij.lang.documentation.DocumentationMarkup.DEFINITION_START;
 
 public class ModelDocumentationProvider extends PythonDocumentationProvider {
     private final TorchBert torchBert = ModelStartUpActive.getTorchBertInstance();
@@ -56,29 +55,26 @@ public class ModelDocumentationProvider extends PythonDocumentationProvider {
         ModelNotLoadedNotification notification = new ModelNotLoadedNotification();
         if (torchBert.isInitialized()) {
             if (element instanceof PyFunction) {
-                if (element.getTextLength() <= 512) {
+                String elementText = element.getText();
+                elementText = elementText.substring(0, Math.min(element.getTextLength(), 512));
+                try {
+                    // add predictions to out
+                    defaultString = defaultString != null ? defaultString : "";
+                    List<Classification> predicts = torchBert.predictOne(elementText);
+                    return getBeautifulPredictions(defaultString, predicts);
+                } catch (TranslateException e) {
+                    // never should happen in normal situation, just in case
                     try {
-                        defaultString = defaultString != null ? defaultString : "";
-                        List<Classification> predicts = torchBert.predictOne(element.getText());
-                        return getBeautifulPredictions(defaultString, predicts);
-                    } catch (TranslateException e) {
-                        // never should happen in normal situation, just in case
-                        try {
-                            Notifications.Bus.notify(notification.createErrorNotification());
-                            loader.loadTo(MODEL_PATH);
-                            synchronized (sharedObject) {
-                                torchBert.setInitialized(true);
-                            }
-                        } catch (IOException | DbxException ignored) {
+                        Notifications.Bus.notify(notification.createErrorNotification());
+                        loader.loadTo(MODEL_PATH);
+                        synchronized (sharedObject) {
+                            torchBert.setInitialized(true);
                         }
+                    } catch (IOException | DbxException ignored) {
                     }
-                    return defaultString;
-                } else
-                    Notifications.Bus
-                            .notify(notification.create512Notification(
-                                    ((PyFunctionImpl) element).getName()));
-            } else
-                return defaultString;
+                }
+            }
+            return defaultString;
         } else
             Notifications.Bus.notify(notification.createNotLoadedNotification());
         return defaultString;
@@ -88,9 +84,9 @@ public class ModelDocumentationProvider extends PythonDocumentationProvider {
         String modelPredicts = "";
         for (int i = 1; i <= predicts.size(); i++) {
             modelPredicts = modelPredicts
-                    .concat(i + ") " + predicts.get(i-1).getClassName())
+                    .concat(i + ") " + predicts.get(i - 1).getClassName())
                     .concat(" -><i>")
-                    .concat(String.valueOf(predicts.get(i-1).getProbability()))
+                    .concat(String.valueOf(predicts.get(i - 1).getProbability()))
                     .concat("</i><br/>");
         }
         return defaultString

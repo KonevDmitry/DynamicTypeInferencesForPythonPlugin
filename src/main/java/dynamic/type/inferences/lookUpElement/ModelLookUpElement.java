@@ -6,7 +6,9 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.ui.JBColor;
 import com.intellij.util.PlatformIcons;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ModelLookUpElement {
@@ -33,8 +35,7 @@ public class ModelLookUpElement {
     public LookupElementBuilder createSuggestedVariableType(Map.Entry<String, String> entry) {
         String fullKey = entry.getKey();
         String type = entry.getValue();
-        String[] pathParts = fullKey.split(": ");
-        String varName = fullKey.split(": ")[pathParts.length-1];
+        String varName = fullKey.substring(fullKey.lastIndexOf('/')+1);
         if (!fullKey.endsWith("_"))
             return LookupElementBuilder
                     .create(varName)
@@ -59,7 +60,8 @@ public class ModelLookUpElement {
                 map
                         .entrySet()
                         .stream()
-//                        .filter(e -> !e.getKey().endsWith("_"))
+                        // do not suggest unneded variables
+                        .filter(e -> !e.getKey().endsWith("_"))
                         .collect(Collectors.partitioningBy(
                                 //TODO: here change later to model predictions
                                 //Also think about multiple variables

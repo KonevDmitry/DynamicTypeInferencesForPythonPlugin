@@ -27,14 +27,14 @@ public class ModelNotLoadedNotification {
                         NotificationType.ERROR);
     }
 
-    public Notification create512Notification(String funcName) {
-        return NotificationGroupManager
-                .getInstance()
-                .getNotificationGroup("VaDima Notification Group")
-                .createNotification(
-                        "VaDima 512 limitation",
-                        String.format("Cannot predict variables <br>for function: %s", funcName),
-                        "Function code has length more than 512.",
-                        NotificationType.INFORMATION);
-    }
+//    public Notification create512Notification(String funcName) {
+//        return NotificationGroupManager
+//                .getInstance()
+//                .getNotificationGroup("VaDima Notification Group")
+//                .createNotification(
+//                        "VaDima 512 limitation",
+//                        String.format("Cannot predict variables <br>for function: %s", funcName),
+//                        "Function code has length more than 512.",
+//                        NotificationType.INFORMATION);
+//    }
 }

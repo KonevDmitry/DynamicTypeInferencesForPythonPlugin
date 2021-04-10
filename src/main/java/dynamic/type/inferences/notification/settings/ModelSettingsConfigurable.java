@@ -3,7 +3,6 @@ package dynamic.type.inferences.notification.settings;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.util.NlsContexts;
-import dynamic.type.inferences.notification.ModelNotLoadedNotification;
 import dynamic.type.inferences.windowOnStartUp.ModelDoNotShowOption;
 import org.jetbrains.annotations.Nullable;
 
