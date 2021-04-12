@@ -13,6 +13,7 @@ import ai.djl.translate.Batchifier;
 import ai.djl.translate.StackBatchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
+import dynamic.type.inferences.GlobalProjectInstances;
 import dynamic.type.inferences.model.runner.Tokenizer.ModelBertFullTokenizer;
 import org.apache.commons.lang.StringUtils;
 import org.javatuples.Triplet;
@@ -29,13 +30,10 @@ public class BertTranslator implements Translator<String, Classifications> {
     private final SimpleVocabulary vocab;
     private final List<String> ranks;
 
-    private static final RanksGetter ranksGetter = new RanksGetter();
-    private static final int BERT_LIMIT = 512;
-
     public BertTranslator(ModelBertFullTokenizer tokenizer) {
         this.tokenizer = tokenizer;
         this.vocab = tokenizer.getVocabulary();
-        this.ranks = ranksGetter.getRanksFromFile();
+        this.ranks = GlobalProjectInstances.getRanksFromFile();
     }
 
     @Override
@@ -48,7 +46,7 @@ public class BertTranslator implements Translator<String, Classifications> {
         BertToken token = tokenizer.encode(input);
         List<String> tokens = token.getTokens();
 
-        while (tokens.size() < BERT_LIMIT)
+        while (tokens.size() < GlobalProjectInstances.BERT_LIMITATION)
             tokens.add("<pad>");
 
         // DJL doesn't support token indices. It is crucial for our model
@@ -74,10 +72,8 @@ public class BertTranslator implements Translator<String, Classifications> {
 
         NDList inputList = new NDList();
         inputList = inputList.toDevice(Device.cpu(), false);
-
         inputList.add(indicesArray.squeeze());
         inputList.add(attentionMaskArray.squeeze());
-
         inputList.add(nDMask.squeeze().toDevice(Device.cpu(), false));
         inputList.add(nDMaskNullShape.squeeze().toDevice(Device.cpu(), false));
 
@@ -180,7 +176,7 @@ public class BertTranslator implements Translator<String, Classifications> {
 
     private boolean[] createIDMask(List<Triplet<String, Integer, Integer>> finalTokens,
                                    List<Triplet<String, Integer, Integer>> tokensForParameters) {
-        boolean[] mask = new boolean[BERT_LIMIT];
+        boolean[] mask = new boolean[GlobalProjectInstances.BERT_LIMITATION];
         Arrays.fill(mask, false);
         for (Triplet<String, Integer, Integer> elem : tokensForParameters) {
             Integer paramStart = elem.getValue1();

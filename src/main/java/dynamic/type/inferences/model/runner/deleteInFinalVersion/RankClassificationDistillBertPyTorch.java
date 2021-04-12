@@ -1,9 +1,12 @@
 package dynamic.type.inferences.model.runner.deleteInFinalVersion;
 
-import ai.djl.*;
-import ai.djl.engine.Engine;
+import ai.djl.Application;
+import ai.djl.Device;
+import ai.djl.MalformedModelException;
+import ai.djl.Model;
 import ai.djl.basicdataset.CsvDataset;
 import ai.djl.basicdataset.utils.DynamicBuffer;
+import ai.djl.engine.Engine;
 import ai.djl.inference.Predictor;
 import ai.djl.metric.Metrics;
 import ai.djl.modality.Classifications;
@@ -18,8 +21,14 @@ import ai.djl.nn.Block;
 import ai.djl.nn.SequentialBlock;
 import ai.djl.nn.core.Linear;
 import ai.djl.nn.norm.Dropout;
-import ai.djl.repository.zoo.*;
-import ai.djl.training.*;
+import ai.djl.repository.zoo.Criteria;
+import ai.djl.repository.zoo.ModelNotFoundException;
+import ai.djl.repository.zoo.ModelZoo;
+import ai.djl.repository.zoo.ZooModel;
+import ai.djl.training.DefaultTrainingConfig;
+import ai.djl.training.EasyTrain;
+import ai.djl.training.Trainer;
+import ai.djl.training.TrainingResult;
 import ai.djl.training.dataset.RandomAccessDataset;
 import ai.djl.training.evaluator.Accuracy;
 import ai.djl.training.listener.CheckpointsTrainingListener;
@@ -27,13 +36,12 @@ import ai.djl.training.listener.TrainingListener;
 import ai.djl.training.loss.Loss;
 import ai.djl.training.util.ProgressBar;
 import ai.djl.translate.*;
+import org.apache.commons.csv.CSVFormat;
 
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-
-import org.apache.commons.csv.CSVFormat;
 
 
 public class RankClassificationDistillBertPyTorch {

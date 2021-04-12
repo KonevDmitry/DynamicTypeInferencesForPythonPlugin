@@ -1,7 +1,6 @@
 package dynamic.type.inferences.notification.settings;
 
 import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.util.NlsContexts;
 import dynamic.type.inferences.windowOnStartUp.ModelDoNotShowOption;
 import org.jetbrains.annotations.Nullable;
@@ -9,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 
 public class ModelSettingsConfigurable implements Configurable {
+
     private ModelApplicationSettingsComponent component;
 
     private final ModelDoNotShowOption.VaDimaState state = ModelDoNotShowOption.getInstance().getState();
@@ -35,7 +35,7 @@ public class ModelSettingsConfigurable implements Configurable {
     }
 
     @Override
-    public void apply() throws ConfigurationException {
+    public void apply() {
         state.toBeShown = component.getModelStatus();
     }
 

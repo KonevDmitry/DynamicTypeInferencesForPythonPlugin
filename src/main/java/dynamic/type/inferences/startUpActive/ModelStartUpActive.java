@@ -15,10 +15,11 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 public class ModelStartUpActive implements StartupActivity {
-    private static final TorchBert torchBert = new TorchBert();
+
+    private static final TorchBert torchBertInstance = new TorchBert();
 
     public static TorchBert getTorchBertInstance() {
-        return torchBert;
+        return torchBertInstance;
     }
 
     public ModelStartUpActive() {
@@ -32,7 +33,7 @@ public class ModelStartUpActive implements StartupActivity {
                         indicator.setIndeterminate(true);
                         indicator.setText("Loading model. Please wait...");
                         try {
-                            torchBert.modelInit();
+                            torchBertInstance.modelInit();
                             indicator.stop();
                         } catch (IOException | MalformedModelException | ModelNotFoundException |
                                 URISyntaxException | DbxException | InterruptedException ignored) {

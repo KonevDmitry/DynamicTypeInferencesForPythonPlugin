@@ -6,9 +6,6 @@
     <depends>com.intellij.modules.lang</depends>
     <vendor>DynamicInference</vendor>
     <version>0.0.2</version>
-    <!-- Product and plugin compatibility requirements -->
-    <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
-
 
     <idea-version since-build="203.5981.165"/>
     <extensions defaultExtensionNs="com.intellij">
@@ -37,6 +34,5 @@
                                  id="org.intellij.sdk.settings.AppSettingsConfigurable"
                                  displayName="VaDima Settings"/>
 
-<!--        <fileBasedIndex implementation="dynamic.type.inferences.index.ModelFunctionIndex"/>-->
     </extensions>
 </idea-plugin>

@@ -7,7 +7,6 @@ import com.google.common.base.CharMatcher;
 import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.notification.Notifications;
-import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
@@ -27,13 +26,13 @@ import com.jetbrains.python.psi.resolve.PyResolveContext;
 import com.jetbrains.python.psi.types.PyCallableType;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
+import dynamic.type.inferences.GlobalProjectInstances;
 import dynamic.type.inferences.lookUpElement.ModelLookUpElement;
 import dynamic.type.inferences.model.loader.BertModelLoader;
 import dynamic.type.inferences.model.runner.TorchBert;
-import dynamic.type.inferences.notification.ModelNotLoadedNotification;
+import dynamic.type.inferences.notification.VaDimaNotification;
 import dynamic.type.inferences.startUpActive.ModelStartUpActive;
 import dynamic.type.inferences.visitors.VariablesVisitor;
-import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,20 +41,21 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ModelCompletionProvider extends CompletionProvider<CompletionParameters> {
+
     private Project project;
-    private Map<String, String> suitableVariables = new HashMap<>();
 
     private final Map<String, PyTargetExpression> allVariablesMap = new HashMap<>();
     private final TorchBert torchBert = ModelStartUpActive.getTorchBertInstance();
     private final Object sharedObject = new Object();
+    private final List<String> BLACK_LIST = new ArrayList<String>() {{
+        add("venv");
+        add("idea");
+    }};
 
-    private static final String MODEL_PATH = PathManager.getConfigPath() + "/eeee.pt";
     private static final Integer MODEL_PRIORITY = Integer.MAX_VALUE - 99;
     private static final Integer ELEM_PRIORITY = Integer.MAX_VALUE - 100;
-    private static final Integer NUM_ELEMENTS_TO_SHOW = 5;
     private static final String SELF = "self";
     private static final String SELF_DOT = "self.";
-
 
     @Override
     protected void addCompletions(@NotNull CompletionParameters parameters,
@@ -86,38 +86,29 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
                 //There are cases when user can call variable and function the same.
                 // For such cases PyCharm returns only first occurrences - variable what causes errors
                 // so, user should firstly refactor his code (rename function/variable)
-                ModelNotLoadedNotification notification = new ModelNotLoadedNotification();
+                VaDimaNotification notification = new VaDimaNotification();
                 if (torchBert.isInitialized()) {
                     if (goToTarget instanceof PyFunction) {
-//                      //TODO: this comment is for those who is interested in this work and wants to make plugin better:
-
-                        // Indexer is called instead of simple getText that slows down work
                         PyFunction pyFunction = (PyFunction) goToTarget;
-//                        List<String> functions = new ArrayList<>();
-//                        try {
-//                            FileContent fileContent = FileContentImpl.createByFile(pyFunction.getContainingFile().getVirtualFile());
-//                            Map<String, Void> fileContentMap = dataIndexer.map(fileContent);
-//                            // Indexer can be more useful in common case: when the index is being processed, you can extend
-//                            // not ScalarIndexExtension but FileBasedIndexExtension, where you can store model predictions
+//                      TODO: this comment is for those who is interested in this work and wants to make plugin better:
+//                      For better work results of model prediction can be written with Indexer.
+//                      Indexer can be more useful in common case: when the index is being processed, you can extend
+//                       FileBasedIndexExtension, where you can store model predictions
 //
-                        // I did not do it because I need to check inference time for my thesis work
-//                            // and this is impossible if model will predict everything on index step (not real time, actually...)
-//                            // but anyway, each indexer makes work faster (this is get text issue)
-//                            // For anyone interested, here is the link, where Semyon Proshev answered me:
-//                            // https://intellij-support.jetbrains.com/hc/en-us/community/posts/360010578580-How-can-I-get-source-code-of-imported-libraries-functions-
-//                            // P.S. There is an issue for user-defined classes that are changed,
-//                            // so there is a need to filter, e.g., functions only from libraries
-//                            functions = fileContentMap
-//                                    .keySet()
-//                                    .stream()
-//                                    .filter(elem -> elem.contains("def " + pyFunction.getName()))
-//                                    .sorted(Comparator.comparingInt(String::length))
-//                                    .limit(1)
-//                                    .collect(Collectors.toList());
-//                        }
+//                        I did not do it because I need to check inference time for my thesis work
+//                        and this is impossible if model will predict everything on index step (not real time, actually...)
+//                        but anyway, each indexer makes work faster (this is get text issue)
+//                        For anyone interested, here is the link, where Semyon Proshev answered me:
+//                        https://intellij-support.jetbrains.com/hc/en-us/community/posts/360010578580-How-can-I-get-source-code-of-imported-libraries-functions-
+//
+//                        But there is a possibility that indexing will take too much time
+//                        (just think only about ML libraries like torch, tf and others).
+//                        So, maybe now is implemented the best option.
                         String functionCode = pyFunction.getNavigationElement().getText();
                         //BERT limitation is 512 symbols
-                        functionCode = functionCode.substring(0, Math.min(512, functionCode.length()));
+                        functionCode = functionCode
+                                .substring(0,
+                                        Math.min(GlobalProjectInstances.BERT_LIMITATION, functionCode.length()));
                         // get function call from everywhere (not only user defined functions)
                         PsiElement position = parameters.getPosition();
                         PyCallExpression call = PsiTreeUtil.getParentOfType(position, PyCallExpression.class);
@@ -229,7 +220,7 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
                                         if (CharMatcher.is('.').countIn(prevSiblingText) < 2) {
                                             if (prevSiblingText.startsWith(SELF))
                                                 suitableVariables.putAll(removedSelfVariables);
-                                            //TODO: here
+                                                //TODO: here
                                             else {
                                                 suitableVariables.putAll(selfVariables);
                                                 suitableVariables.putAll(namedParameters);
@@ -238,8 +229,6 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
                                     } else
                                         //if outside a class than only named parameters are called
                                         suitableVariables.putAll(namedParameters);
-
-                                    this.suitableVariables = suitableVariables;
 
                                     String prefix = CompletionUtil.findReferenceOrAlphanumericPrefix(parameters);
                                     CompletionResultSet resultSetWithPrefix = result.withPrefixMatcher(prefix);
@@ -258,7 +247,7 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
                                         Notifications.Bus.notify(notification.createErrorNotification());
                                         try {
                                             BertModelLoader loader = new BertModelLoader(sharedObject);
-                                            loader.loadTo(MODEL_PATH);
+                                            loader.loadTo(GlobalProjectInstances.MODEL_PATH);
                                             synchronized (sharedObject) {
                                                 torchBert.setInitialized(true);
                                             }
@@ -267,7 +256,8 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
                                     }
                                     //default number of
                                     List<LookupElement> suitableLookUpElements = modelLookUpElement
-                                            .createTopNSuggestedVariablesTypes(suitableVariables, NUM_ELEMENTS_TO_SHOW);
+                                            .createTopNSuggestedVariablesTypes(suitableVariables,
+                                                    GlobalProjectInstances.MAX_VALUES_TO_SHOW);
                                     suitableLookUpElements.stream()
                                             .map(suitableElem ->
                                                     PrioritizedLookupElement.withPriority(suitableElem, ELEM_PRIORITY)
@@ -278,8 +268,10 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
                     }
                 }
                 // if model is not initialized then notify about it
-                else
+                else {
+                    result.runRemainingContributors(parameters, true);
                     Notifications.Bus.notify(notification.createNotLoadedNotification());
+                }
                 result.restartCompletionOnAnyPrefixChange();
                 result.stopHere();
             }
@@ -296,11 +288,6 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
     }
 
     private class ModelContentIterator implements ContentIterator {
-
-        private final List<String> BLACK_LIST = new ArrayList<String>() {{
-            add("venv");
-            add("idea");
-        }};
 
         @Override
         public boolean processFile(@NotNull VirtualFile fileInProject) {

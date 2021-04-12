@@ -1,32 +1,46 @@
 package dynamic.type.inferences.model.runner.deleteInFinalVersion;
 
-import java.io.*;
+import ai.djl.MalformedModelException;
+import ai.djl.Model;
+import ai.djl.inference.Predictor;
+import ai.djl.modality.nlp.SimpleVocabulary;
+import ai.djl.modality.nlp.Vocabulary;
+import ai.djl.modality.nlp.bert.BertToken;
+import ai.djl.modality.nlp.bert.BertTokenizer;
+import ai.djl.modality.nlp.qa.QAInput;
+import ai.djl.ndarray.NDArray;
+import ai.djl.ndarray.NDList;
+import ai.djl.ndarray.NDManager;
+import ai.djl.ndarray.types.Shape;
+import ai.djl.repository.zoo.Criteria;
+import ai.djl.repository.zoo.ModelNotFoundException;
+import ai.djl.repository.zoo.ModelZoo;
+import ai.djl.repository.zoo.ZooModel;
+import ai.djl.training.util.DownloadUtils;
+import ai.djl.training.util.ProgressBar;
+import ai.djl.translate.Batchifier;
+import ai.djl.translate.TranslateException;
+import ai.djl.translate.Translator;
+import ai.djl.translate.TranslatorContext;
+import ai.djl.util.JsonUtils;
+import com.google.gson.annotations.SerializedName;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.*;
-import java.util.*;
-import java.util.stream.*;
-
-import ai.djl.*;
-import ai.djl.util.*;
-import ai.djl.ndarray.*;
-import ai.djl.ndarray.types.*;
-import ai.djl.inference.*;
-import ai.djl.translate.*;
-import ai.djl.training.util.*;
-import ai.djl.repository.zoo.*;
-import ai.djl.modality.nlp.*;
-import ai.djl.modality.nlp.qa.*;
-import ai.djl.modality.nlp.bert.*;
-
-import com.google.gson.annotations.SerializedName;
-
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class BertQAMXNet {
 
-    public static void main(String[] args) throws IOException, MalformedURLException, ModelNotFoundException, MalformedModelException, TranslateException {
+    public static void main(String[] args) throws IOException, ModelNotFoundException, MalformedModelException, TranslateException {
         String question = "When did BBC Japan start broadcasting?";
         String resourceDocument = "BBC Japan was a general entertainment Channel.\n" +
                 "Which operated between December 2004 and April 2006.\n" +
@@ -55,7 +69,7 @@ public class BertQAMXNet {
                     try {
                         return VocabParser.parseToken(file);
                     } catch (MalformedURLException e) {
-                        return Collections.singletonList(String.format("Error:\n %s", e.toString()));
+                        return Collections.singletonList(String.format("Error:\n %s", e));
                     }
                 })
                 .optUnknownToken("[UNK]")
@@ -76,12 +90,12 @@ public class BertQAMXNet {
                 .optTranslator(translator)
                 .optProgress(new ProgressBar()).build();
 
-        ZooModel model = ModelZoo.loadModel(criteria);
+        ZooModel<QAInput, String> model = ModelZoo.loadModel(criteria);
 
-        String predictResult = null;
+        String predictResult;
         QAInput qaInput = new QAInput(question, resourceDocument);
 
-    // Create a Predictor and use it to predict the output
+        // Create a Predictor and use it to predict the output
         try (Predictor<QAInput, String> predictor = model.newPredictor(translator)) {
             predictResult = predictor.predict(qaInput);
         }
@@ -120,7 +134,7 @@ public class BertQAMXNet {
         private BertTokenizer tokenizer;
 
         @Override
-        public void prepare(NDManager manager, Model model) throws IOException {
+        public void prepare(NDManager manager, Model model) {
             String path = "build/mxnet/bertqa/vocab.json";
             vocabulary =
                     SimpleVocabulary.builder()
@@ -129,7 +143,7 @@ public class BertQAMXNet {
                                 try {
                                     return VocabParser.parseToken(file);
                                 } catch (MalformedURLException e) {
-                                    return Collections.singletonList(String.format("Error:\n %s", e.toString()));
+                                    return Collections.singletonList(String.format("Error:\n %s", e));
                                 }
                             })
                             .optUnknownToken("[UNK]")

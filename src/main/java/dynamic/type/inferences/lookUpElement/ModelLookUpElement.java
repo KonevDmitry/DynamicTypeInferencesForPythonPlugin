@@ -6,19 +6,11 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.ui.JBColor;
 import com.intellij.util.PlatformIcons;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ModelLookUpElement {
-    public List<LookupElement> createElements(List<Classification> classifications) {
-        List<LookupElement> lookupElements = new ArrayList<>();
-        classifications
-                .forEach(
-                        classification -> lookupElements.add(createModelElement(classification)));
-        return lookupElements;
-    }
 
     public LookupElementBuilder createModelElement(Classification classification) {
         return LookupElementBuilder
@@ -35,7 +27,7 @@ public class ModelLookUpElement {
     public LookupElementBuilder createSuggestedVariableType(Map.Entry<String, String> entry) {
         String fullKey = entry.getKey();
         String type = entry.getValue();
-        String varName = fullKey.substring(fullKey.lastIndexOf('/')+1);
+        String varName = fullKey.substring(fullKey.lastIndexOf('/') + 1);
         if (!fullKey.endsWith("_"))
             return LookupElementBuilder
                     .create(varName)
@@ -91,9 +83,5 @@ public class ModelLookUpElement {
             suitableType.addAll(unsuitableType);
             return suitableType;
         }
-    }
-
-    public List<LookupElement> createSuggestedVariablesTypes(Map<String, String> map) {
-        return createTopNSuggestedVariablesTypes(map, map.size());
     }
 }

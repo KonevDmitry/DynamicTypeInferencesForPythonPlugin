@@ -3,15 +3,16 @@ package dynamic.type.inferences.documentationProvider;
 import ai.djl.modality.Classifications.Classification;
 import ai.djl.translate.TranslateException;
 import com.dropbox.core.DbxException;
+import com.intellij.lang.documentation.DocumentationMarkup;
 import com.intellij.lang.documentation.DocumentationProvider;
 import com.intellij.notification.Notifications;
-import com.intellij.openapi.application.PathManager;
 import com.intellij.psi.PsiElement;
 import com.jetbrains.python.documentation.PythonDocumentationProvider;
 import com.jetbrains.python.psi.PyFunction;
+import dynamic.type.inferences.GlobalProjectInstances;
 import dynamic.type.inferences.model.loader.BertModelLoader;
 import dynamic.type.inferences.model.runner.TorchBert;
-import dynamic.type.inferences.notification.ModelNotLoadedNotification;
+import dynamic.type.inferences.notification.VaDimaNotification;
 import dynamic.type.inferences.startUpActive.ModelStartUpActive;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,16 +20,13 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.util.List;
 
-import static com.intellij.lang.documentation.DocumentationMarkup.DEFINITION_END;
-import static com.intellij.lang.documentation.DocumentationMarkup.DEFINITION_START;
 
 public class ModelDocumentationProvider extends PythonDocumentationProvider {
-    private final TorchBert torchBert = ModelStartUpActive.getTorchBertInstance();
+
+    private final TorchBert torchBertInstance = ModelStartUpActive.getTorchBertInstance();
     private final Object sharedObject = new Object();
     private final BertModelLoader loader = new BertModelLoader(sharedObject);
     private final DocumentationProvider provider = new PythonDocumentationProvider();
-
-    private static final String MODEL_PATH = PathManager.getConfigPath() + "/eeee.pt";
 
     //mouse move
     @Override
@@ -52,23 +50,24 @@ public class ModelDocumentationProvider extends PythonDocumentationProvider {
     }
 
     private String addInfoWithPredictions(PsiElement element, String defaultString) {
-        ModelNotLoadedNotification notification = new ModelNotLoadedNotification();
-        if (torchBert.isInitialized()) {
+        VaDimaNotification notification = new VaDimaNotification();
+        if (torchBertInstance.isInitialized()) {
             if (element instanceof PyFunction) {
                 String elementText = element.getText();
-                elementText = elementText.substring(0, Math.min(element.getTextLength(), 512));
+                elementText = elementText.substring(0, Math.min(element.getTextLength(),
+                        GlobalProjectInstances.BERT_LIMITATION));
                 try {
                     // add predictions to out
                     defaultString = defaultString != null ? defaultString : "";
-                    List<Classification> predicts = torchBert.predictOne(elementText);
+                    List<Classification> predicts = torchBertInstance.predictOne(elementText);
                     return getBeautifulPredictions(defaultString, predicts);
                 } catch (TranslateException e) {
                     // never should happen in normal situation, just in case
                     try {
                         Notifications.Bus.notify(notification.createErrorNotification());
-                        loader.loadTo(MODEL_PATH);
+                        loader.loadTo(GlobalProjectInstances.MODEL_PATH);
                         synchronized (sharedObject) {
-                            torchBert.setInitialized(true);
+                            torchBertInstance.setInitialized(true);
                         }
                     } catch (IOException | DbxException ignored) {
                     }
@@ -90,9 +89,9 @@ public class ModelDocumentationProvider extends PythonDocumentationProvider {
                     .concat("</i><br/>");
         }
         return defaultString
-                .concat(DEFINITION_START)
+                .concat(DocumentationMarkup.DEFINITION_START)
                 .concat("<br/><b>VaDima predictions:</b><br/>")
                 .concat(modelPredicts)
-                .concat(DEFINITION_END);
+                .concat(DocumentationMarkup.DEFINITION_END);
     }
 }

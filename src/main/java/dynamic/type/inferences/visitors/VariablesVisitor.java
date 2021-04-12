@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class VariablesVisitor extends PyRecursiveElementVisitor {
+
     private final Map<String, PyTargetExpression> variablesMap = new HashMap<>();
 
     @Override

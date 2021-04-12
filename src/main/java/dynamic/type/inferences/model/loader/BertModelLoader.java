@@ -3,13 +3,12 @@ package dynamic.type.inferences.model.loader;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
-import com.dropbox.core.v2.files.FileMetadata;
+import dynamic.type.inferences.GlobalProjectInstances;
 
 import java.io.*;
-import java.net.URL;
-import java.util.Objects;
 
 public class BertModelLoader {
+
     final Object sharedObject;
 
     public BertModelLoader(Object sharedObject) {
@@ -19,10 +18,8 @@ public class BertModelLoader {
     public void loadTo(String pathToLoad) throws IOException, DbxException {
         // model loading process with connection to DropBox api
         DbxRequestConfig config = new DbxRequestConfig("BertModelLoader");
-        URL url = getClass().getClassLoader().getResource("/data/torchBERT/token");
         BufferedReader reader = new BufferedReader(
-                new InputStreamReader(
-                        Objects.requireNonNull(url).openStream()));
+                new InputStreamReader(GlobalProjectInstances.URL_TOKEN.openStream()));
 
         String token = reader.readLine();
         reader.close();

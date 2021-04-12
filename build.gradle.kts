@@ -13,14 +13,9 @@ buildscript {
 plugins {
     // Java support
     id("java")
-
-    // Kotlin support
     id("org.jetbrains.kotlin.jvm") version "1.4.0"
-    // gradle-intellij-plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
     id("org.jetbrains.intellij") version "0.6.5"
-    // gradle-changelog-plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
     id("org.jetbrains.changelog") version "0.4.0"
-    // detekt linter - read more: https://detekt.github.io/detekt/kotlindsl.html
     id("io.gitlab.arturbosch.detekt") version "1.11.0"
 }
 
@@ -67,17 +62,7 @@ dependencies {
 
     implementation("ai.djl:api:0.9.0")
     implementation("ai.djl:basicdataset:0.9.0")
-    // MXNet
-//    implementation("ai.djl.mxnet:mxnet-model-zoo:0.9.0")
-//    implementation("ai.djl.mxnet:mxnet-native-auto:1.7.0-backport")
 
-    // TF config
-//    implementation("ai.djl.tensorflow:tensorflow-api:0.9.0")
-//    implementation("ai.djl.tensorflow:tensorflow-engine:0.9.0")
-//    implementation("ai.djl.tensorflow:tensorflow-model-zoo:0.9.0")
-//    implementation("ai.djl.tensorflow:tensorflow-native-auto:2.3.1")
-
-    //PyTorch
     implementation("ai.djl.pytorch:pytorch-engine:0.9.0")
     runtimeOnly("ai.djl.pytorch:pytorch-native-cpu:1.7.0")
     implementation("ai.djl.pytorch:pytorch-model-zoo:0.9.0")
@@ -115,7 +100,6 @@ tasks {
         sinceBuild(pluginSinceBuild)
 //        untilBuild(pluginUntilBuild)
 
-        // Extract the <!-- Plugin description --> section from README.md and provide for the plugin's manifest
         pluginDescription(
             closure {
                 File(projectDir, "README.md").readText().lines().run {
@@ -129,7 +113,6 @@ tasks {
             }
         )
 
-        // Get the latest available change notes from the changelog file
         changeNotes(
             closure {
                 changelog.getLatest().toHTML()

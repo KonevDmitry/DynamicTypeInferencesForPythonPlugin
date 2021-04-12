@@ -7,6 +7,7 @@ import dynamic.type.inferences.windowOnStartUp.ModelDoNotShowOption;
 import javax.swing.*;
 
 public class ModelApplicationSettingsComponent {
+
     private final JPanel mainPanel;
     private final JBCheckBox modelStatus = new JBCheckBox("Do not show VaDima notification at PyCharm start");
 

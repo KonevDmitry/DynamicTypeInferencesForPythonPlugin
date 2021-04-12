@@ -1,9 +1,11 @@
 package dynamic.type.inferences.notification;
 
-import com.intellij.notification.*;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationGroupManager;
+import com.intellij.notification.NotificationType;
 
 
-public class ModelNotLoadedNotification {
+public class VaDimaNotification {
 
     public Notification createNotLoadedNotification() {
         return NotificationGroupManager
@@ -11,7 +13,7 @@ public class ModelNotLoadedNotification {
                 .getNotificationGroup("VaDima Notification Group")
                 .createNotification(
                         "VaDima plugin info",
-                        "Model not loaded",
+                        "Model is not loaded",
                         "Predictions for functions will be available after model load.\n",
                         NotificationType.INFORMATION);
     }
@@ -26,15 +28,4 @@ public class ModelNotLoadedNotification {
                         "Reloading model...",
                         NotificationType.ERROR);
     }
-
-//    public Notification create512Notification(String funcName) {
-//        return NotificationGroupManager
-//                .getInstance()
-//                .getNotificationGroup("VaDima Notification Group")
-//                .createNotification(
-//                        "VaDima 512 limitation",
-//                        String.format("Cannot predict variables <br>for function: %s", funcName),
-//                        "Function code has length more than 512.",
-//                        NotificationType.INFORMATION);
-//    }
 }
