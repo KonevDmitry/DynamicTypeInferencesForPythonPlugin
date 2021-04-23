@@ -20,10 +20,11 @@ plugins {
 }
 
 val pluginGroup: String by project
+// issue: https://github.com/JetBrains/intellij-platform-plugin-template/issues/29
 val pluginName: String by project
 val pluginVersion: String by project
 val pluginSinceBuild: String by project
-//val pluginUntilBuild: String by project
+val pluginUntilBuild: String by project
 
 val platformType: String by project
 val platformVersion: String by project
@@ -60,24 +61,27 @@ dependencies {
 
     implementation("org.apache.directory.studio:org.apache.commons.io:2.4")
 
-    implementation("ai.djl:api:0.9.0")
-    implementation("ai.djl:basicdataset:0.9.0")
+    implementation("ai.djl:api:0.10.0")
+    implementation("ai.djl:basicdataset:0.10.0")
 
-    implementation("ai.djl.pytorch:pytorch-engine:0.9.0")
-    runtimeOnly("ai.djl.pytorch:pytorch-native-cpu:1.7.0")
-    implementation("ai.djl.pytorch:pytorch-model-zoo:0.9.0")
+    implementation("ai.djl.pytorch:pytorch-engine:0.10.0")
+    implementation("ai.djl.pytorch:pytorch-native-cpu:1.7.1")
+    implementation("ai.djl.pytorch:pytorch-model-zoo:0.10.0")
+
     implementation("com.dropbox.core:dropbox-core-sdk:3.1.5")
 
     implementation("com.flipkart.utils:javatuples:3.0")
 }
 
 intellij {
-    pluginName = pluginName
+    pluginName = this@Build_gradle.pluginName
     version = platformVersion
     type = platformType
     downloadSources = platformDownloadSources.toBoolean()
     updateSinceUntilBuild = true
-    setPlugins(*platformPlugins.split(',').map(String::trim).filter(String::isNotEmpty).toTypedArray())
+//    setPlugins(*platformPlugins.split(',').map(String::trim).filter(String::isNotEmpty).toTypedArray())
+//    setPlugins("Pythonid:${buildVersion}")
+    setPlugins("python")
 }
 
 tasks {
@@ -98,8 +102,7 @@ tasks {
     patchPluginXml {
         version(pluginVersion)
         sinceBuild(pluginSinceBuild)
-//        untilBuild(pluginUntilBuild)
-
+        untilBuild(pluginUntilBuild)
         pluginDescription(
             closure {
                 File(projectDir, "README.md").readText().lines().run {

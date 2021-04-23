@@ -2,7 +2,6 @@
 <pad>
 </s>
 <unk>
-<sep>
 .
 Ġthe
 ,

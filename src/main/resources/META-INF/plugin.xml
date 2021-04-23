@@ -1,16 +1,17 @@
 <idea-plugin>
-    <id>com.github.konevdmitry.dynamictypeinferencesforpythonplugin</id>
-    <name>DynamicTypeInferences</name>
+    <id>com.github.konevdmitry.VaDima</id>
+    <name>VaDima</name>
 
     <depends>com.intellij.modules.python</depends>
     <depends>com.intellij.modules.lang</depends>
-    <vendor>DynamicInference</vendor>
-    <version>0.0.2</version>
+    <vendor>VaDima</vendor>
+    <version>0.4.0</version>
 
-    <idea-version since-build="203.5981.165"/>
+    <!--    it will exist until the end of humanity...-->
+    <idea-version since-build="203.5981.165" until-build="300.*"/>
     <extensions defaultExtensionNs="com.intellij">
         <postStartupActivity
-                implementation="dynamic.type.inferences.startUpActive.ModelStartUpActive"
+                implementation="dynamic.type.inferences.startUpActive.ModelStartUpActivity"
                 order="first"/>
 
         <postStartupActivity implementation="dynamic.type.inferences.startUpActive.ShowClassesStartUpActive"

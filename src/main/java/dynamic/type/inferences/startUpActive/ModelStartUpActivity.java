@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-public class ModelStartUpActive implements StartupActivity {
+public class ModelStartUpActivity implements StartupActivity {
 
     private static final TorchBert torchBertInstance = new TorchBert();
 
@@ -22,7 +22,7 @@ public class ModelStartUpActive implements StartupActivity {
         return torchBertInstance;
     }
 
-    public ModelStartUpActive() {
+    public ModelStartUpActivity() {
     }
 
     @Override

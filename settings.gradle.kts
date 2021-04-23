@@ -1,1 +1,1 @@
-rootProject.name = "DynamicTypeInferencesForPythonPlugin"
+rootProject.name = "VaDima"

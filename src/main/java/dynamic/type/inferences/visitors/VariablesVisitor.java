@@ -2,7 +2,7 @@ package dynamic.type.inferences.visitors;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.file.PsiDirectoryImpl;
-import com.intellij.psi.util.QualifiedName;
+import com.jetbrains.python.psi.PyElement;
 import com.jetbrains.python.psi.PyNamedParameter;
 import com.jetbrains.python.psi.PyRecursiveElementVisitor;
 import com.jetbrains.python.psi.PyTargetExpression;
@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class VariablesVisitor extends PyRecursiveElementVisitor {
 
-    private final Map<String, PyTargetExpression> variablesMap = new HashMap<>();
+    private final Map<String, PyElement> variablesMap = new HashMap<>();
 
     @Override
     public void visitPyTargetExpression(@NotNull PyTargetExpression node) {
@@ -22,7 +22,14 @@ public class VariablesVisitor extends PyRecursiveElementVisitor {
         super.visitPyTargetExpression(node);
     }
 
-    public Map<String, PyTargetExpression> getVariablesMap() {
+    @Override
+    public void visitPyNamedParameter(@NotNull PyNamedParameter node) {
+        String key = generateKeyForNode(node);
+        variablesMap.put(String.valueOf(key), node);
+        super.visitPyNamedParameter(node);
+    }
+
+    public Map<String, PyElement> getVariablesMap() {
         return variablesMap;
     }
 
@@ -38,11 +45,7 @@ public class VariablesVisitor extends PyRecursiveElementVisitor {
                         .concat(((PyNamedParameter) temporal)
                                 .getRepr(true)));
             else if (temporal instanceof PyTargetExpression) {
-                QualifiedName qualifiedName = ((PyTargetExpression) temporal).asQualifiedName();
-                if (qualifiedName != null)
-                    key.insert(0, "/" + qualifiedName);
-                else
-                    key.insert(0, "/" + temporal);
+                key.insert(0, "/" + ((PyTargetExpression) temporal).getName());
             } else
                 key.insert(0, "/" + temporal.toString());
             temporal = temporal.getOriginalElement().getParent();

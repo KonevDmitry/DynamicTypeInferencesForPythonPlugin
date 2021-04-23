@@ -21,13 +21,13 @@ public class ModelBertFullTokenizer extends SimpleTokenizer {
     private final List<TextProcessor> basicBertPreprocessors;
     private final ModelWordpieceTokenizer wordpieceTokenizer;
 
-    //if variable name is more than 200 symbols -> mark as unk
+//    if variable name is more than 200 symbols -> mark as unk
     private static final int MAX_INPUT_CHARS = 200;
 
     public ModelBertFullTokenizer(SimpleVocabulary vocabulary, boolean lowerCase) {
         this.vocabulary = vocabulary;
         basicBertPreprocessors = getPreprocessors(lowerCase);
-        wordpieceTokenizer = new ModelWordpieceTokenizer(vocabulary, "<UNK>", MAX_INPUT_CHARS);
+        wordpieceTokenizer = new ModelWordpieceTokenizer(vocabulary, "<unk>", MAX_INPUT_CHARS);
     }
 
     public SimpleVocabulary getVocabulary() {
@@ -64,8 +64,13 @@ public class ModelBertFullTokenizer extends SimpleTokenizer {
     public BertToken encode(String code) {
         List<String> tokens = tokenize(code);
 
-        tokens.add(0, "<s>");
-        tokens.add("</s>");
+//      Never touch the code below. Tokens are added in a such way, because default DJL tokenizer sorts tokens:
+//      <s> should be first, but after sorting it goes after </s>.
+//      With default adding tokens </s> surprisingly will go first after <s>.
+//      In such a way logic of model crushes. So, do not touch next two lines :)
+
+        tokens.add(0, "</s>");
+        tokens.add("<s>");
 
         int validLength = tokens.size();
         long[] tokenTypeArr = new long[tokens.size()];

@@ -18,5 +18,4 @@ public class ShowClassesStartUpActive implements StartupActivity {
             windowExistingClasses.show();
         }
     }
-
 }

@@ -16,8 +16,9 @@ public class BertModelLoader {
     }
 
     public void loadTo(String pathToLoad) throws IOException, DbxException {
-        // model loading process with connection to DropBox api
+//         model loading process with connection to DropBox api
         DbxRequestConfig config = new DbxRequestConfig("BertModelLoader");
+
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(GlobalProjectInstances.URL_TOKEN.openStream()));
 
@@ -27,7 +28,7 @@ public class BertModelLoader {
         OutputStream outputStream = new FileOutputStream(pathToLoad);
         client
                 .files()
-                .downloadBuilder("/eeee.pt")
+                .downloadBuilder(GlobalProjectInstances.MODEL_NAME)
                 .download(outputStream);
         synchronized (sharedObject) {
             sharedObject.notify();
