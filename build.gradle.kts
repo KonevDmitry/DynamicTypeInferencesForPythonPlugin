@@ -74,7 +74,7 @@ dependencies {
 }
 
 intellij {
-    pluginName = this@Build_gradle.pluginName
+    pluginName = pluginName
     version = platformVersion
     type = platformType
     downloadSources = platformDownloadSources.toBoolean()
