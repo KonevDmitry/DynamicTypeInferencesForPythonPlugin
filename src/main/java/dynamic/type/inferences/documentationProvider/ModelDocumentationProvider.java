@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.List;
 
 
-public class ModelDocumentationProvider extends PythonDocumentationProvider {
+public class ModelDocumentationProvider implements DocumentationProvider {
 
     private final TorchBert torchBertInstance = ModelStartUpActivity.getTorchBertInstance();
     private final Object sharedObject = new Object();
@@ -79,6 +79,7 @@ public class ModelDocumentationProvider extends PythonDocumentationProvider {
                             torchBertInstance.setInitialized(true);
                         }
                     } catch (IOException | DbxException ignored) {
+                        return defaultString;
                     }
                 }
             }
@@ -89,28 +90,30 @@ public class ModelDocumentationProvider extends PythonDocumentationProvider {
     }
 
     private String getBeautifulPredictions(String defaultString, String funcName, List<Classification> predicts) {
-        String modelPredicts = "";
+        StringBuilder modelPredicts = new StringBuilder();
         for (int i = 1; i <= predicts.size(); i++) {
             String predictName = predicts.get(i - 1).getClassName();
-            modelPredicts = modelPredicts
-                    .concat(String.valueOf(i))
-                    .concat(CLOSE_BRACKET)
-                    .concat(SPACE_DEF_SPACE)
-                    .concat(BOLD_START)
-                    .concat(funcName)
-                    .concat(BOLD_END)
-                    .concat(OPEN_BRACKET)
-                    .concat(predictName)
-                    .concat(CLOSE_BRACKET)
-                    .concat(NEW_LINE);
-
+            modelPredicts
+                    .append(i)
+                    .append(CLOSE_BRACKET)
+                    .append(SPACE_DEF_SPACE)
+                    .append(BOLD_START)
+                    .append(funcName)
+                    .append(BOLD_END)
+                    .append(OPEN_BRACKET)
+                    .append(predictName)
+                    .append(CLOSE_BRACKET)
+                    .append(NEW_LINE);
         }
-        return defaultString
-                .concat(DocumentationMarkup.DEFINITION_START)
-                .concat(NEW_LINE).concat(BOLD_START)
-                .concat("VaDima predictions:")
-                .concat(BOLD_END).concat(NEW_LINE)
-                .concat(modelPredicts)
-                .concat(DocumentationMarkup.DEFINITION_END);
+
+        String allInfo = DocumentationMarkup.DEFINITION_START +
+                NEW_LINE +
+                BOLD_START +
+                "VaDima predictions:" +
+                BOLD_END +
+                NEW_LINE +
+                modelPredicts +
+                DocumentationMarkup.DEFINITION_END;
+        return defaultString.concat(allInfo);
     }
 }

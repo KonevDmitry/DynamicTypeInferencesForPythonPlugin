@@ -1,4 +1,6 @@
-<idea-plugin>
+<!--were found cases when after switching plugin on/off several times everything crashed.
+The solution was PyCharm reloading.-->
+<idea-plugin require-restart="true">
     <id>com.github.konevdmitry.VaDima</id>
     <name>VaDima</name>
 
