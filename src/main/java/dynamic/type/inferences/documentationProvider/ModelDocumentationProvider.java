@@ -7,6 +7,7 @@ import com.intellij.lang.documentation.DocumentationMarkup;
 import com.intellij.lang.documentation.DocumentationProvider;
 import com.intellij.notification.Notifications;
 import com.intellij.psi.PsiElement;
+import com.jetbrains.python.documentation.PyDocumentationBuilder;
 import com.jetbrains.python.documentation.PythonDocumentationProvider;
 import com.jetbrains.python.psi.PyFunction;
 import com.jetbrains.python.psi.impl.PyFunctionImpl;
@@ -39,22 +40,22 @@ public class ModelDocumentationProvider implements DocumentationProvider {
     //mouse move
     @Override
     public String generateHoverDoc(@NotNull PsiElement element, @Nullable PsiElement originalElement) {
-        String defaultString = provider.generateHoverDoc(element, originalElement);
-        return addInfoWithPredictions(element, defaultString);
+        PyDocumentationBuilder builder = new PyDocumentationBuilder(element, originalElement);
+        return addInfoWithPredictions(element, builder.build());
     }
 
-    // ctrl+ mouse move
+    // ctrl+ hover move
     @Override
     public String getQuickNavigateInfo(PsiElement element, @NotNull PsiElement originalElement) {
-        String defaultString = provider.getQuickNavigateInfo(element, originalElement);
-        return addInfoWithPredictions(element, defaultString);
+        PyDocumentationBuilder builder = new PyDocumentationBuilder(element, originalElement);
+        return addInfoWithPredictions(element, builder.build());
     }
 
     //ctrl+q
     @Override
     public String generateDoc(@NotNull PsiElement element, @Nullable PsiElement originalElement) {
-        String defaultString = provider.generateDoc(element, originalElement);
-        return addInfoWithPredictions(element, defaultString);
+        PyDocumentationBuilder builder = new PyDocumentationBuilder(element, originalElement);
+        return addInfoWithPredictions(element, builder.build());
     }
 
     private String addInfoWithPredictions(PsiElement element, String defaultString) {
@@ -92,6 +93,7 @@ public class ModelDocumentationProvider implements DocumentationProvider {
     private String getBeautifulPredictions(String defaultString, String funcName, List<Classification> predicts) {
         StringBuilder modelPredicts = new StringBuilder();
         for (int i = 1; i <= predicts.size(); i++) {
+            long startTime = System.currentTimeMillis();
             String predictName = predicts.get(i - 1).getClassName();
             modelPredicts
                     .append(i)
@@ -104,8 +106,11 @@ public class ModelDocumentationProvider implements DocumentationProvider {
                     .append(predictName)
                     .append(CLOSE_BRACKET)
                     .append(NEW_LINE);
+            long endTime = System.currentTimeMillis();
+            System.out.println("predict end "+(endTime - startTime));
         }
 
+        long startTime = System.currentTimeMillis();
         String allInfo = DocumentationMarkup.DEFINITION_START +
                 NEW_LINE +
                 BOLD_START +
@@ -114,6 +119,8 @@ public class ModelDocumentationProvider implements DocumentationProvider {
                 NEW_LINE +
                 modelPredicts +
                 DocumentationMarkup.DEFINITION_END;
+        long endTime = System.currentTimeMillis();
+        System.out.println("all info end "+(endTime - startTime));
         return defaultString.concat(allInfo);
     }
 }
