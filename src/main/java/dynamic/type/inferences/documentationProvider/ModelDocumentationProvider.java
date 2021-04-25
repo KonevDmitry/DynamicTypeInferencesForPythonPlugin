@@ -7,7 +7,6 @@ import com.intellij.lang.documentation.DocumentationMarkup;
 import com.intellij.lang.documentation.DocumentationProvider;
 import com.intellij.notification.Notifications;
 import com.intellij.psi.PsiElement;
-import com.jetbrains.python.documentation.PyDocumentationBuilder;
 import com.jetbrains.python.documentation.PythonDocumentationProvider;
 import com.jetbrains.python.psi.PyFunction;
 import com.jetbrains.python.psi.impl.PyFunctionImpl;
@@ -40,37 +39,54 @@ public class ModelDocumentationProvider implements DocumentationProvider {
     //mouse move
     @Override
     public String generateHoverDoc(@NotNull PsiElement element, @Nullable PsiElement originalElement) {
-        PyDocumentationBuilder builder = new PyDocumentationBuilder(element, originalElement);
-        return addInfoWithPredictions(element, builder.build());
+        String defaultString = provider.generateHoverDoc(element, originalElement);
+        if (element instanceof PyFunction) {
+            if (defaultString != null) {
+                return defaultString.concat(addInfoWithPredictions(element));
+            } else
+                return addInfoWithPredictions(element);
+        }
+        return defaultString;
     }
 
     // ctrl+ hover move
     @Override
     public String getQuickNavigateInfo(PsiElement element, @NotNull PsiElement originalElement) {
-        PyDocumentationBuilder builder = new PyDocumentationBuilder(element, originalElement);
-        return addInfoWithPredictions(element, builder.build());
+        String defaultString = provider.getQuickNavigateInfo(element, originalElement);
+        if (element instanceof PyFunction) {
+            if (defaultString != null) {
+                return defaultString.concat(addInfoWithPredictions(element));
+            } else
+                return addInfoWithPredictions(element);
+            //            return addInfoWithPredictions(element, defaultString);
+        }
+        return defaultString;
     }
 
     //ctrl+q
     @Override
     public String generateDoc(@NotNull PsiElement element, @Nullable PsiElement originalElement) {
-        PyDocumentationBuilder builder = new PyDocumentationBuilder(element, originalElement);
-        return addInfoWithPredictions(element, builder.build());
+        String defaultString = provider.generateDoc(element, originalElement);
+        if (element instanceof PyFunction) {
+            if (defaultString != null) {
+                return defaultString.concat(addInfoWithPredictions(element));
+            } else
+                return addInfoWithPredictions(element);
+        }
+        return defaultString;
     }
 
-    private String addInfoWithPredictions(PsiElement element, String defaultString) {
+    private String addInfoWithPredictions(PsiElement element) {
         VaDimaNotification notification = new VaDimaNotification();
         if (torchBertInstance.isInitialized()) {
             if (element instanceof PyFunction) {
                 String funcName = ((PyFunctionImpl) element).getName();
                 try {
                     // add predictions to out
-                    defaultString = defaultString != null ? defaultString : "";
                     List<Classification> predicts = torchBertInstance.predictOne((PyFunction) element);
                     if (predicts != null) {
-                        return getBeautifulPredictions(defaultString, funcName, predicts);
-                    } else
-                        return defaultString;
+                        return getBeautifulPredictions(funcName, predicts);
+                    }
                 } catch (TranslateException e) {
                     // never should happen in normal situation, just in case
                     try {
@@ -80,20 +96,19 @@ public class ModelDocumentationProvider implements DocumentationProvider {
                             torchBertInstance.setInitialized(true);
                         }
                     } catch (IOException | DbxException ignored) {
-                        return defaultString;
+//                        in case if something happened -> return empty line
+                        return "";
                     }
                 }
             }
-            return defaultString;
         } else
             Notifications.Bus.notify(notification.createNotLoadedNotification());
-        return defaultString;
+        return "";
     }
 
-    private String getBeautifulPredictions(String defaultString, String funcName, List<Classification> predicts) {
+    private String getBeautifulPredictions(String funcName, List<Classification> predicts) {
         StringBuilder modelPredicts = new StringBuilder();
         for (int i = 1; i <= predicts.size(); i++) {
-            long startTime = System.currentTimeMillis();
             String predictName = predicts.get(i - 1).getClassName();
             modelPredicts
                     .append(i)
@@ -106,12 +121,9 @@ public class ModelDocumentationProvider implements DocumentationProvider {
                     .append(predictName)
                     .append(CLOSE_BRACKET)
                     .append(NEW_LINE);
-            long endTime = System.currentTimeMillis();
-            System.out.println("predict end "+(endTime - startTime));
         }
 
-        long startTime = System.currentTimeMillis();
-        String allInfo = DocumentationMarkup.DEFINITION_START +
+        return DocumentationMarkup.DEFINITION_START +
                 NEW_LINE +
                 BOLD_START +
                 "VaDima predictions:" +
@@ -119,8 +131,5 @@ public class ModelDocumentationProvider implements DocumentationProvider {
                 NEW_LINE +
                 modelPredicts +
                 DocumentationMarkup.DEFINITION_END;
-        long endTime = System.currentTimeMillis();
-        System.out.println("all info end "+(endTime - startTime));
-        return defaultString.concat(allInfo);
     }
 }
