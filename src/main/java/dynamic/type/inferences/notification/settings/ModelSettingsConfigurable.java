@@ -15,7 +15,7 @@ public class ModelSettingsConfigurable implements Configurable {
 
     @Override
     public @NlsContexts.ConfigurableName String getDisplayName() {
-        return "VaDima Settings";
+        return "VaDima";
     }
 
     @Override

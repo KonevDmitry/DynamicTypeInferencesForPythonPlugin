@@ -1,6 +1,8 @@
 package dynamic.type.inferences;
 
 import com.intellij.openapi.application.PathManager;
+import com.intellij.ui.components.JBList;
+import com.intellij.ui.components.JBScrollPane;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
@@ -25,6 +27,13 @@ public final class GlobalProjectInstances {
     @NotNull
     public static final URL URL_TOKEN = Objects.requireNonNull(GlobalProjectInstances.class.getClassLoader().getResource("/data/torchBERT/token"));
 
+    public static final String NEW_LINE = "<br/>";
+    public static final String BOLD_START = "<b>";
+    public static final String BOLD_END = "</b>";
+    public static final String OPEN_BRACKET = "(";
+    public static final String CLOSE_BRACKET = ")";
+    public static final String SPACE_DEF_SPACE = " def ";
+
     public static List<String> getRanksFromFile() {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(URL_RANKS.openStream()));
@@ -34,5 +43,12 @@ public final class GlobalProjectInstances {
         } catch (IOException ignored) {
             return Collections.emptyList();
         }
+    }
+
+    public static JBScrollPane getRanksScrollPanel() {
+        JBList<String> jbList = new JBList<>(getRanksFromFile());
+        JBScrollPane scrollPane = new JBScrollPane(jbList);
+        scrollPane.createVerticalScrollBar();
+        return scrollPane;
     }
 }

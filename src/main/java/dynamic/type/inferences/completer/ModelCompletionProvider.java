@@ -104,7 +104,16 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
 //                      it will take old version of function (from index step)
 //                      Honestly, we didn't find a way out of this problem and decided to do real-time getText().
 //                      get function call from everywhere (not only user defined functions)
+//
+//                      UPD from 29.04.2021 - we checked how long indexer works. Without libraries (only built-in)
+//                      indexer works for ~0,5 hours. With installed tf - ... More than 1.5 hours))
+//                      My laptop has 8 cores and ~40 gb of free space and it actually died...
 
+//                      I sincerely wish health and patience to the one who will make the indexer.
+
+/**
+*                      As for our indexer - you can find developments in {@link dynamic.type.inferences.indexer}
+**/
                         PsiElement position = parameters.getPosition();
                         PyCallExpression call = PsiTreeUtil.getParentOfType(position, PyCallExpression.class);
                         TypeEvalContext evalContext = TypeEvalContext

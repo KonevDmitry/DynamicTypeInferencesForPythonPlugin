@@ -13,7 +13,7 @@ public class ShowClassesStartUpActive implements StartupActivity {
     @Override
     public void runActivity(@NotNull Project project) {
         ModelDoNotShowOption.VaDimaState vaDimaState = modelDoNotShowOption.getState();
-        if (!vaDimaState.toBeShown) {
+        if (vaDimaState.toBeShown) {
             WindowExistingClasses windowExistingClasses = new WindowExistingClasses(project);
             windowExistingClasses.show();
         }

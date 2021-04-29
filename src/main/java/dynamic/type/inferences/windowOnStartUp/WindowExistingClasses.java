@@ -4,14 +4,12 @@ import com.intellij.lang.documentation.DocumentationMarkup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBCheckBox;
-import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
 import dynamic.type.inferences.GlobalProjectInstances;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
 
 public class WindowExistingClasses extends DialogWrapper {
 
@@ -37,11 +35,8 @@ public class WindowExistingClasses extends DialogWrapper {
     protected JComponent createCenterPanel() {
         ModelDoNotShowOption.VaDimaState vaDimaState = modelDoNotShowOption.getState();
         JPanel jPanel = new JPanel(new BorderLayout());
-        List<String> ranks = GlobalProjectInstances.getRanksFromFile();
-        JBList<String> jbList = new JBList<>(ranks);
-        JBScrollPane scrollPane = new JBScrollPane(jbList);
+        JBScrollPane scrollPane = GlobalProjectInstances.getRanksScrollPanel();
 
-        scrollPane.createVerticalScrollBar();
         JLabel jLabel = new JLabel(
                 HTML_OPEN_TAG
                         .concat(DocumentationMarkup.DEFINITION_START)
@@ -57,7 +52,7 @@ public class WindowExistingClasses extends DialogWrapper {
         jPanel.add(jLabel, BorderLayout.NORTH);
         jPanel.add(scrollPane, BorderLayout.CENTER);
         jPanel.add(checkBox, BorderLayout.AFTER_LAST_LINE);
-        checkBox.addChangeListener(e -> vaDimaState.toBeShown = checkBox.isSelected());
+        checkBox.addChangeListener(e -> vaDimaState.toBeShown = !checkBox.isSelected());
         return jPanel;
     }
 }

@@ -29,13 +29,6 @@ public class ModelDocumentationProvider implements DocumentationProvider {
     private final BertModelLoader loader = new BertModelLoader(sharedObject);
     private final DocumentationProvider provider = new PythonDocumentationProvider();
 
-    private static final String NEW_LINE = "<br/>";
-    private static final String BOLD_START = "<b>";
-    private static final String BOLD_END = "</b>";
-    private static final String OPEN_BRACKET = "(";
-    private static final String CLOSE_BRACKET = ")";
-    private static final String SPACE_DEF_SPACE = " def ";
-
     //mouse move
     @Override
     public String generateHoverDoc(@NotNull PsiElement element, @Nullable PsiElement originalElement) {
@@ -58,7 +51,6 @@ public class ModelDocumentationProvider implements DocumentationProvider {
                 return defaultString.concat(addInfoWithPredictions(element));
             } else
                 return addInfoWithPredictions(element);
-            //            return addInfoWithPredictions(element, defaultString);
         }
         return defaultString;
     }
@@ -112,24 +104,24 @@ public class ModelDocumentationProvider implements DocumentationProvider {
             String predictName = predicts.get(i - 1).getClassName();
             modelPredicts
                     .append(i)
-                    .append(CLOSE_BRACKET)
-                    .append(SPACE_DEF_SPACE)
-                    .append(BOLD_START)
+                    .append(GlobalProjectInstances.CLOSE_BRACKET)
+                    .append(GlobalProjectInstances.SPACE_DEF_SPACE)
+                    .append(GlobalProjectInstances.BOLD_START)
                     .append(funcName)
-                    .append(BOLD_END)
-                    .append(OPEN_BRACKET)
+                    .append(GlobalProjectInstances.BOLD_END)
+                    .append(GlobalProjectInstances.OPEN_BRACKET)
                     .append(predictName)
-                    .append(CLOSE_BRACKET)
-                    .append(NEW_LINE);
+                    .append(GlobalProjectInstances.CLOSE_BRACKET)
+                    .append(GlobalProjectInstances.NEW_LINE);
         }
 
-        return DocumentationMarkup.DEFINITION_START +
-                NEW_LINE +
-                BOLD_START +
-                "VaDima predictions:" +
-                BOLD_END +
-                NEW_LINE +
-                modelPredicts +
-                DocumentationMarkup.DEFINITION_END;
+        return DocumentationMarkup.DEFINITION_START
+                .concat(GlobalProjectInstances.NEW_LINE)
+                .concat(GlobalProjectInstances.BOLD_START)
+                .concat("VaDima predictions:")
+                .concat(GlobalProjectInstances.BOLD_END)
+                .concat(GlobalProjectInstances.NEW_LINE)
+                .concat(String.valueOf(modelPredicts))
+                .concat(DocumentationMarkup.DEFINITION_END);
     }
 }
