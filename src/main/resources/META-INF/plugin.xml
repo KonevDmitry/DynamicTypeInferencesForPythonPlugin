@@ -13,10 +13,10 @@ The solution was PyCharm reloading.-->
     <idea-version since-build="203.5981.165" until-build="300.*"/>
     <extensions defaultExtensionNs="com.intellij">
         <postStartupActivity
-                implementation="dynamic.type.inferences.startUpActive.ModelStartUpActivity"
+                implementation="dynamic.type.inferences.startUpActivity.ModelStartUpActivity"
                 order="first"/>
 
-        <postStartupActivity implementation="dynamic.type.inferences.startUpActive.ShowClassesStartUpActive"
+        <postStartupActivity implementation="dynamic.type.inferences.startUpActivity.ShowClassesStartUpActive"
                              order="last"/>
 
         <completion.contributor implementationClass="dynamic.type.inferences.completer.PyVarsForFuncCompleter"
@@ -30,7 +30,7 @@ The solution was PyCharm reloading.-->
         <notificationGroup id="VaDima Notification Group" displayType="BALLOON"/>
 
         <applicationService
-                serviceImplementation="dynamic.type.inferences.windowOnStartUp.ModelDoNotShowOption"/>
+                serviceImplementation="dynamic.type.inferences.startUpActivity.windowOnStartUp.ModelDoNotShowOption"/>
 
         <applicationConfigurable parentId="tools"
                                  instance="dynamic.type.inferences.notification.settings.ModelSettingsConfigurable"

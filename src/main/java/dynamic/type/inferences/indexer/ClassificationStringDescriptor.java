@@ -18,13 +18,13 @@ import java.util.stream.Collectors;
 /**
  * The code below is not used and provides some plain implementation of indexer.
  * We tried to create predictions on indexer step for better performance during typical PyCharm work.
- *
+ * <p>
  * But solution with indexer occurred to be too terrible. At least 30 minutes of indexing
  * and several gigabytes of memory...
- *
+ * <p>
  * Moreover, the code bellow is not finished - it includes only predictions for
  * functions without their name/path (the last one is more preferable because of same function names)
- *
+ * <p>
  * The code below is not commented because it is not used.
  */
 public class ClassificationStringDescriptor implements KeyDescriptor<List<Classifications.Classification>> {

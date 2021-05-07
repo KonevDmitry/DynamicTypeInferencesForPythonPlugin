@@ -16,7 +16,7 @@ import com.jetbrains.python.psi.PyFile;
 import com.jetbrains.python.psi.PyFunction;
 import com.jetbrains.python.pyi.PyiFileType;
 import dynamic.type.inferences.model.runner.TorchBert;
-import dynamic.type.inferences.startUpActive.ModelStartUpActivity;
+import dynamic.type.inferences.startUpActivity.ModelStartUpActivity;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -29,13 +29,13 @@ import java.util.Map;
 /**
  * The code below is not used and provides some plain implementation of indexer.
  * We tried to create predictions on indexer step for better performance during typical PyCharm work.
- *
+ * <p>
  * But solution with indexer occurred to be too terrible. At least 30 minutes of indexing
  * and several gigabytes of memory...
- *
+ * <p>
  * Moreover, the code bellow is not finished - it includes only predictions for
  * functions without their name/path (the last one is more preferable because of same function names)
- *
+ * <p>
  * The code below is not commented because it is not used.
  */
 public class ModelIndexer extends ScalarIndexExtension<List<Classifications.Classification>> {
@@ -49,7 +49,7 @@ public class ModelIndexer extends ScalarIndexExtension<List<Classifications.Clas
 
     @Override
     public @NotNull DataIndexer<List<Classifications.Classification>, Void, FileContent> getIndexer() {
-        return new DataIndexer<List<Classifications.Classification>, Void, FileContent>() {
+        return new DataIndexer<>() {
 
             private final TorchBert torchBert = ModelStartUpActivity.getTorchBertInstance();
 

@@ -8,10 +8,16 @@ import static com.intellij.patterns.PlatformPatterns.psiElement;
 import static com.intellij.patterns.PlatformPatterns.psiFile;
 import static com.intellij.patterns.StandardPatterns.instanceOf;
 
+/**
+ * Instance for running completer that is registered in plugin.xml
+ * Runs instance of ModelCompletionProvider
+ */
 public class PyVarsForFuncCompleter extends CompletionContributor {
 
-    // Instance for running completer that is registered in plugin.xml
-    public PyVarsForFuncCompleter() throws NullPointerException {
+    /**
+     * Main method for running created provider
+     */
+    public PyVarsForFuncCompleter() {
         extend(CompletionType.BASIC,
                 psiElement()
                         .inFile(psiFile()

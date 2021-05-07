@@ -1,4 +1,4 @@
-package dynamic.type.inferences.windowOnStartUp;
+package dynamic.type.inferences.startUpActivity.windowOnStartUp;
 
 import com.intellij.lang.documentation.DocumentationMarkup;
 import com.intellij.openapi.project.Project;
@@ -11,6 +11,9 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Class for showing all recognizable types by model. Represents standard base class for modal dialog boxes.
+ */
 public class WindowExistingClasses extends DialogWrapper {
 
     private final ModelDoNotShowOption modelDoNotShowOption = ModelDoNotShowOption.getInstance();
@@ -19,7 +22,14 @@ public class WindowExistingClasses extends DialogWrapper {
     private static final String HTML_OPEN_TAG = "<html>";
     private static final String HTML_CLOSE_TAG = "</html>";
 
+    /**
+     * Base builder of a class
+     *
+     * @param project is a current project
+     */
     public WindowExistingClasses(Project project) {
+//        Default way of creating dialog box from official tutorial
+//        Firstly, call super and after that modify and add own objects
         super(project);
 
         init();
@@ -30,13 +40,21 @@ public class WindowExistingClasses extends DialogWrapper {
         createDoNotAskCheckbox();
     }
 
+    /**
+     * Create a panel with dialog options.
+     *
+     * @return JPanel with added types, JLabel, scrollPane, and checkBox
+     */
     @Override
     @Nullable
     protected JComponent createCenterPanel() {
         ModelDoNotShowOption.VaDimaState vaDimaState = modelDoNotShowOption.getState();
+//        Main panel
         JPanel jPanel = new JPanel(new BorderLayout());
+//        Recognizable types by VaDima
         JBScrollPane scrollPane = GlobalProjectInstances.getRanksScrollPanel();
 
+//        Header and text at top of panel
         JLabel jLabel = new JLabel(
                 HTML_OPEN_TAG
                         .concat(DocumentationMarkup.DEFINITION_START)
@@ -48,7 +66,9 @@ public class WindowExistingClasses extends DialogWrapper {
                         .concat(HTML_CLOSE_TAG)
         );
 
+//        CheckBox for never showing option :(
         JBCheckBox checkBox = new JBCheckBox("Never show again");
+//        Add all objects above and listen to checkBox changes
         jPanel.add(jLabel, BorderLayout.NORTH);
         jPanel.add(scrollPane, BorderLayout.CENTER);
         jPanel.add(checkBox, BorderLayout.AFTER_LAST_LINE);
