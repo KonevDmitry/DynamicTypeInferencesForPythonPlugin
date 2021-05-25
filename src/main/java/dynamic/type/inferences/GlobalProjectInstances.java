@@ -23,7 +23,7 @@ public final class GlobalProjectInstances {
     public static final String MODEL_NAME = "/eeee.pt";
     public static final String MODEL_PATH = PathManager.getConfigPath() + MODEL_NAME;
     public static final String MODEL_PATH_FOR_PRINT = PathManager.getAbsolutePath(MODEL_PATH)
-            .replaceAll(":\\\\", ":\\\\\\\\");
+            .replaceAll("\\\\", "/");
     public static final Integer MAX_VALUES_TO_SHOW = 5;
     public static final Integer BERT_LIMITATION = 512;
     @NotNull
