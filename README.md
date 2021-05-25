@@ -13,7 +13,7 @@ of user-defined function during the model load then he will be notified about it
 
 ### How the model is downloaded?
 
-The model is downloaded from dropbox via dropbox-api. The model itself is downloaded inside [BertModelLoader (
+The model is downloaded from dropbox via dropbox-api. The model itself is downloaded inside [BertModelLoader](
 /src/main/java/dynamic/type/inferences/model/loader/BertModelLoader.java). This class is used on project opening
 is [StartUpActivity.](/src/main/java/dynamic/type/inferences/startUpActivity/ModelStartUpActivity.java)
 
@@ -90,12 +90,30 @@ Documentation.
   about releases containing new features and fixes.
 
 <!-- Plugin description -->
-This Fancy IntelliJ Platform Plugin is going to be your implementation of the brilliant ideas that you have.
+### Function type annotations
+Tired of undocumented code? Always spend a lot of time reading strange code? 
+Always have to look at "deep dark secrets"?
 
-This specific section is a source for the [plugin.xml](/src/main/resources/META-INF/plugin.xml) file which will be
-extracted by the [Gradle](/build.gradle.kts) during the build process.
+VaDima is a solution!
 
-To keep everything working, do not remove `<!-- ... -->` sections.
+VaDima is a plugin that can help you to deal with functions that were written by you
+and other people. Using the most modern Machine Learning techniques it suggests the types of variables
+for next functions:
+* Written by you 
+* Python build-in
+* From libraries
+
+This plugin uses BERT model that analyses the code of functions and 
+returns top-5 most probable types for each function parameter. It can help in several ways:
+1) Documentation providing for mouse hoverboard and ctrl+q actions:
+![Example](https://media.giphy.com/media/Pg0RuS2frxFjebsHgW/giphy.gif)
+2) Type hinting
+![Example](https://media.giphy.com/media/qpXvotoDsbZaTsBMjZ/giphy.gif)
+
+### Attention!!!
+Plugin downloads BERT model and takes **475,9 mb** of free space. Suggested types and some other options can be found in
+plugin settings: 
+![Settings](https://imgur.com/rsdR55A.jpg)
 <!-- Plugin description end -->
 
 ## Installation
@@ -116,38 +134,6 @@ To keep everything working, do not remove `<!-- ... -->` sections.
 Plugin based on the [IntelliJ Platform Plugin Template][template].
 
 [template]: https://github.com/JetBrains/intellij-platform-plugin-template
-
-# Papers
-
-## Graphs and GNN based models
-
-1. [Typilus: Neural Type Hints](https://arxiv.org/abs/2004.10657)
-2. [Lambdanet: Probabilistic Type Inference Using Graph Neural Networks](https://openreview.net/forum?id=Hkx6hANtwH)
-3. [Inferring Javascript Types Using Graph Neural Networks](https://arxiv.org/abs/1905.06707)
-
-### Probabilistic
-
-4.1. [Advanced Graph-Based Deep Learning for Probabilistic Type Inference](https://arxiv.org/abs/2009.05949)
-4.2. [Python Probabilistic Type Inference with Natural Language Support](https://dl.acm.org/doi/10.1145/2950290.2950343)
-4.3. [OptTyper: Probabilistic Type Inference by Optimising Logical and Natural Constraints ](https://arxiv.org/abs/2004.00348)
-
-5. [Hoppity: Learning Graph Transformations To Detect And Fix Bugs In Programs](https://openreview.net/forum?id=SJeqs6EFvB) (
-   Not Type Inference per se, but is related)
-
-## Embedding + NonGraph NN models
-
-1. [NL2Type: Inferring JavaScript Function Types from Natural Language Information](https://ieeexplore.ieee.org/document/8811893)
-2. [Deep Learning Type Inference](https://vhellendoorn.github.io/PDF/fse2018-j2t.pdf)
-3. [TypeWriter: Neural Type Prediction with Search-based Validation](https://arxiv.org/abs/1912.03768)
-4. [DLTPy: Deep Learning Type Inference Of Python Function Signatures Using Natural Language Context](https://arxiv.org/abs/1912.00680)
-
-## Embeddings for code
-
-1. [Learning and Evaluating Contextual Embedding of Source Code (CuBERT)](https://arxiv.org/abs/2001.00059)
-2. [CodeBERT: A Pre-Trained Model for Programming and Natural Languages](https://arxiv.org/abs/2002.08155)
-3. [A Literature Study Of Embeddings On Source Code](https://arxiv.org/abs/1904.03061v1)
-4. [Contrastive Code Representation Learning](https://arxiv.org/abs/2007.04973)
-
 
 
 

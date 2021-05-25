@@ -143,7 +143,7 @@ public class TorchBert {
 
 //            Create tokenizer from the vocabulary and create translator. About the last one:
 //            more details in class itself.
-            ModelBertFullTokenizer tokenizer = new ModelBertFullTokenizer(vocabulary, true);
+            ModelBertFullTokenizer tokenizer = new ModelBertFullTokenizer(vocabulary);
             bertTranslator = new BertTranslator(tokenizer);
 
 //            Define criteria for DJL model initialization

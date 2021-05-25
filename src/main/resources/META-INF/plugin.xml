@@ -16,7 +16,7 @@ The solution was PyCharm reloading.-->
                 implementation="dynamic.type.inferences.startUpActivity.ModelStartUpActivity"
                 order="first"/>
 
-        <postStartupActivity implementation="dynamic.type.inferences.startUpActivity.ShowClassesStartUpActive"
+        <postStartupActivity implementation="dynamic.type.inferences.startUpActivity.ShowClassesStartUpActivity"
                              order="last"/>
 
         <completion.contributor implementationClass="dynamic.type.inferences.completer.PyVarsForFuncCompleter"

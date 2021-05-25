@@ -1,15 +1,14 @@
 package dynamic.type.inferences.model.runner.tokenizer;
 
-import ai.djl.modality.nlp.NlpUtils;
 import ai.djl.modality.nlp.SimpleVocabulary;
 import ai.djl.modality.nlp.bert.BertToken;
-import ai.djl.modality.nlp.preprocess.*;
+import ai.djl.modality.nlp.preprocess.SimpleTokenizer;
+import dynamic.type.inferences.GlobalProjectInstances;
+import dynamic.type.inferences.model.tfLite.GPT2Tokenizer;
+import kotlin.Pair;
 
-import java.text.Normalizer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -21,22 +20,14 @@ import java.util.stream.Collectors;
 public class ModelBertFullTokenizer extends SimpleTokenizer {
 
     private final SimpleVocabulary vocabulary;
-    private final List<TextProcessor> basicBertPreprocessors;
-    private final ModelWordpieceTokenizer wordpieceTokenizer;
-
-    //    if variable name is more than 200 symbols -> mark as unk
-    private static final int MAX_INPUT_CHARS = 200;
 
     /**
      * Constructor of main tokenizer, where
      *
      * @param vocabulary is an instance of models vocabulary containing all recognizable worlds
-     * @param lowerCase  option to lowercase words
      */
-    public ModelBertFullTokenizer(SimpleVocabulary vocabulary, boolean lowerCase) {
+    public ModelBertFullTokenizer(SimpleVocabulary vocabulary) {
         this.vocabulary = vocabulary;
-        basicBertPreprocessors = getPreprocessors(lowerCase);
-        wordpieceTokenizer = new ModelWordpieceTokenizer(vocabulary, "<unk>", MAX_INPUT_CHARS);
     }
 
     /**
@@ -54,36 +45,15 @@ public class ModelBertFullTokenizer extends SimpleTokenizer {
      */
     @Override
     public List<String> tokenize(String input) {
-        List<String> tokens = new ArrayList<>(Collections.singletonList(input));
-//        Run all tokenizers. There is the only way implementing the same behaviour as
-//        tokenizing in Python.
-        for (TextProcessor processor : basicBertPreprocessors)
-            tokens = processor.preprocess(tokens);
-
-        return wordpieceTokenizer.preprocess(tokens);
-    }
-
-    /**
-     * Initializing all processors for tokenizing, where
-     *
-     * @param lowerCase is a option for lower casing tokens
-     * @return list of initialized processors
-     */
-    public static List<TextProcessor> getPreprocessors(boolean lowerCase) {
-//      Each of tokenizers contains comments what it does.
-        List<TextProcessor> processors = new ArrayList<>(10);
-        processors.add(new TextCleaner(c -> c == 0 || c == 0xfffd || NlpUtils.isControl(c), '\0'));
-        processors.add(new LambdaProcessor(String::trim));
-        if (lowerCase)
-            processors.add(new LowerCaseConvertor());
-        processors.add(new UnicodeNormalizer(Normalizer.Form.NFD));
-        processors.add(new TextCleaner(c -> Character.getType(c) == Character.NON_SPACING_MARK, '\0'));
-        processors.add(new LambdaProcessor(String::trim));
-        processors.add(new TextCleaner(NlpUtils::isWhiteSpace, ' '));
-        processors.add(new SimpleTokenizer());
-        processors.add(new GTokenizer());
-        processors.add(new PunctuationSeparator());
-        return processors;
+//        Run GPT2 tokenizer.
+        Map<Pair<String, String>, Integer> bpeRanks;
+        try {
+            bpeRanks = GlobalProjectInstances.loadBpeRanks();
+            GPT2Tokenizer gpt2Tokenizer = new GPT2Tokenizer(bpeRanks);
+            return gpt2Tokenizer.encode(input);
+        } catch (IOException ignored) {
+            return Collections.emptyList();
+        }
     }
 
     /**
@@ -92,8 +62,10 @@ public class ModelBertFullTokenizer extends SimpleTokenizer {
      * @param code is a code of a function
      * @return special BertToken defined by DJL for text tokenization. (Contains comments in DJL library)
      */
-    public BertToken encode(String code) {
-        List<String> tokens = tokenize(code);
+    public BertToken encode(String code) throws IOException {
+        Map<Pair<String, String>, Integer> bpeRanks = GlobalProjectInstances.loadBpeRanks();
+        GPT2Tokenizer gpt2Tokenizer = new GPT2Tokenizer(bpeRanks);
+        List<String> tokens = gpt2Tokenizer.encode(code);
 
 //      Never touch the code below. Tokens are added in a such way, because default DJL tokenizer sorts tokens:
 //      <s> should be first, but after sorting it goes after </s>.

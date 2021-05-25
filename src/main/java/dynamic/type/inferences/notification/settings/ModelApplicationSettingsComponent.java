@@ -22,7 +22,9 @@ public class ModelApplicationSettingsComponent {
 
     private static final String HTML_BOLD_START = "<html><b>";
     private static final String HTML_BOLD_END = "</b></html>";
-
+    private static final String HTML_BOLD = "</b>";
+    private static final String HTML_END = "</html>";
+    private static final int INDENT = 15;
     /**
      * Main class for creating mentioned above objects.
      */
@@ -33,17 +35,22 @@ public class ModelApplicationSettingsComponent {
         modelStatus.setSelected(state.toBeShown);
 //        Load ranks from file and put them into scroll pane
         JBScrollPane scrollPane = GlobalProjectInstances.getRanksScrollPanel();
-        JLabel jLabel = new JBLabel(HTML_BOLD_START + "Recognizable types by VaDima: " + HTML_BOLD_END);
+        JLabel jLabelEmpty = new JBLabel(HTML_BOLD_START + "Recognizable types by VaDima: " + HTML_BOLD_END);
+        JLabel jLabelModelPath = new JBLabel(
+                HTML_BOLD_START + "VaDima model path: " +
+                        HTML_BOLD + GlobalProjectInstances.MODEL_PATH + HTML_END);
 
-        jLabel.setBorder(BorderFactory.createEmptyBorder(30, 0, 0, 0));
+        jLabelEmpty.setBorder(BorderFactory.createEmptyBorder(INDENT, 0, INDENT, 0));
+        jLabelModelPath.setBorder(BorderFactory.createEmptyBorder(INDENT, 0, INDENT, 0));
 
 //        Put everything together
         mainPanel = FormBuilder
                 .createFormBuilder()
-                .addComponent(modelStatus, 0)
-                .addComponent(jLabel, 1)
-                .addComponent(scrollPane, 2)
-                .addComponentFillVertically(new JPanel(), 3)
+                .addComponent(jLabelModelPath, 0)
+                .addComponent(modelStatus, 1)
+                .addComponent(jLabelEmpty, 2)
+                .addComponent(scrollPane, 3)
+                .addComponentFillVertically(new JPanel(), 4)
                 .getPanel();
     }
 

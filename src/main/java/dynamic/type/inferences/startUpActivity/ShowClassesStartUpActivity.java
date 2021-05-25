@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
  * "show classes at PyCharm start", then list of all recognizable types will be shown.
  * Settings, where this option is declared, can be found in {@link ModelApplicationSettingsComponent}
  */
-public class ShowClassesStartUpActive implements StartupActivity {
+public class ShowClassesStartUpActivity implements StartupActivity {
 
     private final ModelDoNotShowOption modelDoNotShowOption = ModelDoNotShowOption.getInstance();
 

@@ -16,13 +16,12 @@ import com.intellij.navigation.NavigationItem;
 import com.jetbrains.python.psi.PyFunction;
 import dynamic.type.inferences.GlobalProjectInstances;
 import dynamic.type.inferences.model.runner.tokenizer.ModelBertFullTokenizer;
-import org.apache.commons.lang.StringUtils;
+import dynamic.type.inferences.model.tfLite.GPT2Tokenizer;
 import org.javatuples.Triplet;
 
+import java.io.IOException;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * Translator interpreters provides model pre-processing and postprocessing functionality.
@@ -102,7 +101,7 @@ public class BertTranslator implements Translator<String, Classifications> {
      * @return the {@link NDList} after pre-processing
      */
     @Override
-    public NDList processInput(TranslatorContext ctx, String input) {
+    public NDList processInput(TranslatorContext ctx, String input) throws IOException {
 //        Firstly, get all tokens
         BertToken token = tokenizer.encode(input);
         List<String> tokens = token.getTokens();
@@ -140,7 +139,7 @@ public class BertTranslator implements Translator<String, Classifications> {
 //        Anyway, for safety, we check it.
         if (functionTokens != null) {
 //            Finally, get tokens for parameters
-            List<Triplet<String, Integer, Integer>> parametersTokens = indexParameters(allTokens, functionTokens);
+            List<Triplet<String, Integer, Integer>> parametersTokens = indexParameters(pyFunction, allTokens);
 
 //            Next steps are default steps with filling the attention mask for model.
 //            IDMask creates mask of 512 elements filled with false.
@@ -187,132 +186,58 @@ public class BertTranslator implements Translator<String, Classifications> {
     /**
      * Function needed for indexing the tokens of parameters, where
      *
-     * @param allTokens      are all tokens that we already have
-     * @param functionTokens tokens of function name. Needed for small optimization
+     * @param allTokens are all tokens that we already have
      * @return All indexed tokens of parameters
      */
     private List<Triplet<String, Integer, Integer>> indexParameters(
-            List<Triplet<String, Integer, Integer>> allTokens,
-            List<Triplet<String, Integer, Integer>> functionTokens) {
-//        Reminder: functionTokens are already sorted, so we can get the last token of function
-//        Explanation: depending on the length of the function name, it can be split into a lot of
-//        tokens. Let's say, function "geohash." It is split into 2 words: "geo" and "hash"
-//        We are sure that before "hash" there are no parameters and that is why we can start
-//        searching from the token "hash." We take it's end position.
-        int lastFunctionPosition = functionTokens.get(functionTokens.size() - 1).getValue2();
+            PyFunction pyFunction,
+            List<Triplet<String, Integer, Integer>> allTokens) throws IOException {
+//        Algorithm: from PyCharm we now names of the parameters of current function.
+//        The idea is tokenize each of them and find subsequence in all tokens.
 
-//        Algorithm:
-//         Firstly, get elements that occur after function init and finish with "):" <- function def end.
-//         We guarantee that this will happen. Otherwise, function is not still defined
-//         and this situation is handled by PSI element.
+//        The problem is that GPT2 tokenizer has an "interesting principles of work:"
+//          Example below is just for illustration:
+//          Let's say, we have a variable some_variable_with_value
+//          When it tokenizes value inside of context, with no space before (it looks like "some_variable_with_value")
+//          then the tokens will be: "some", "variable", "with", "value"
+//        But inside the Python code it will look like in a next way:
+//          "some", "var", "iable", "with", "value"
+//        It happens so because of empty space before variable.
+//        In such a case, we try tokenizing " some_variable_with_value"
+
+//        Get parameters, tokenizer and names of tokens
+        List<String> pyCharmParameters = getPyFunctionParametersAsStrings(pyFunction);
+        GPT2Tokenizer gpt2Tokenizer = new GPT2Tokenizer(GlobalProjectInstances.loadBpeRanks());
+        List<String> tokensNames = allTokens.stream().map(Triplet::getValue0).collect(Collectors.toList());
+
         List<Triplet<String, Integer, Integer>> parameters = new ArrayList<>();
-        for (int i = 0; i < allTokens.size() - 2; i++) {
-//            That sad smile "):" is separated into 2 tokens: ")" and ":" that
-//            and followed sequentially. So, we can get all tokens until such occurrence.
-            Triplet<String, Integer, Integer> currentToken = allTokens.get(i);
-            Triplet<String, Integer, Integer> closeBracketCheck = allTokens.get(i + 1);
-            Triplet<String, Integer, Integer> colonCheck = allTokens.get(i + 2);
-//            If current index is more than start of current token, than
-//            such tokens suits us
-            if (currentToken.getValue1() > lastFunctionPosition) {
-                parameters.add(currentToken);
-//                If next 2 tokens are ")" and ":" then we are finished
-                if (closeBracketCheck.getValue0().equals(")") &&
-                        colonCheck.getValue0().equals(":"))
-//                    Below will be explained, why we need the last close parenthesis
-                    break;
-            }
-        }
-//        Secondly, remove elements, that are not parameters (can be defined types or values)
-//         The only way is to check signs from ":" or "=" till the "," or end of list.
-//         After removing types and values delete commas.
-//
-//         Example of handling all needed cases:
-//         def abc(c1, u2, q3: str, a4="acsca", b5:list=(1,((2),{3}),4)):
-//
-//        We cannot simply remove everything by comma or by close parenthesis or by equals sign.
-//        The crucial are only close parenthesis. For example above we have next representation as text:
-//        def abc(c1, u2, q3: str, a4="acsca", b5:list=(1,((2),{3}),4)
-//
-//        The solution is finding the last acceptable close parenthesis. Simple count during iteration.
-//        As for the last parameter - anyway, it will be the last index and there will not be nowhere to index.
-
-
-        // We need to check such behaviour, because
-        // there can be some crazy guy who would init list of lists of lists of ...
-
-        // Also, we suggest that text of function is finished
-        // (what is purpose to use documentation/type hinting for not finished function definition?
-        // Even PyCharm does not recognize it as a function)
-
-        List<Triplet<String, Integer, Integer>> found = new ArrayList<>();
-        for (int i = 0; i < parameters.size() - 1; i++) {
-            String currentElemName = parameters.get(i).getValue0();
-            if (currentElemName.equals(":") || currentElemName.equals("=")) {
-//                Be ready for parenthesis...
-//                Counter is needed for taking next tokens after comma. You will see it later
-                int openBracketsCount = 0;
-                int counter = 1;
-//                We found the pattern where to start removing tokens
-                found.add(parameters.get(i));
-                Triplet<String, Integer, Integer> nextElem = parameters.get(i + 1);
-//                Found occurrence to remove... Oh, god
-                while (!nextElem.getValue0().equals(",")) {
-//                    Take next index and check if everything is Ok
-                    int index = i + counter;
-                    if (index < parameters.size()) {
-//                        After that take next elements
-                        nextElem = parameters.get(index);
-//                        List case. Increase bracketCounter if met open parenthesis
-//                        If met close parenthesis - decrease
-//                        And add all tokens for removal in this interval
-                        if (nextElem.getValue0().equals("(")) {
-                            found.add(nextElem);
-                            openBracketsCount += 1;
-                            int bracketCounter = 1;
-//                            Find the last acceptable close parenthesis
-                            while (openBracketsCount != 0) {
-                                nextElem = parameters.get(index + bracketCounter);
-                                if (nextElem.getValue0().equals("("))
-                                    openBracketsCount += 1;
-                                if (nextElem.getValue0().equals(")"))
-                                    openBracketsCount -= 1;
-                                found.add(nextElem);
-                                bracketCounter += 1;
-                            }
-                        }
-//                        Do not forget about comma itself.
-                        found.add(nextElem);
-                        counter += 1;
-                    }
-//                    Happens when last parameter is a list. We did not add last two tokens.
-//                    Example was described at line 225 of this file.
-                    else
-                        break;
+//        Now find tokens for all found parameters
+        for (String param : pyCharmParameters) {
+//            Firstly, without space case
+            List<String> gptNoSpaceTokens = gpt2Tokenizer.encode(param);
+            int index = Collections.indexOfSubList(tokensNames, gptNoSpaceTokens);
+//            If sublist is found, then add it
+            if (index > 0) {
+                List<Triplet<String, Integer, Integer>> sublist = allTokens.subList(index, index + gptNoSpaceTokens.size());
+                parameters.addAll(sublist);
+            } else {
+//            Now cases when user doesn't use refactoring (wring tokens appear)
+                List<String> gptSpaceTokens = gpt2Tokenizer.encode(" " + param);
+//                For such tokenizing appears Ġ which we need to replace and remove empty (the space itself)
+                gptSpaceTokens = gptSpaceTokens
+                        .stream()
+                        .map(elem -> elem.replaceAll("Ġ", ""))
+                        .filter(elem -> !elem.isEmpty())
+                        .collect(Collectors.toList());
+                index = Collections.indexOfSubList(tokensNames, gptSpaceTokens);
+//                If something went wrong even here, then we can do nothing
+                if (index > 0) {
+                    List<Triplet<String, Integer, Integer>> sublist = allTokens.subList(index, index + gptSpaceTokens.size());
+                    parameters.addAll(sublist);
                 }
             }
-//            Remove all found incorrect tokens
-            parameters.removeAll(found);
         }
-//         Now most part of brackets is removed. Remove all commas and just in case brackets.
-//         Should be useless, but just in case.
-
-        ArrayList<String> forbiddenValues = new ArrayList<>() {{
-            add(",");
-            add("}");
-            add("{");
-            add(")");
-            add("(");
-            add("[");
-            add("]");
-        }};
-        return parameters
-                .stream()
-                .filter(elem -> {
-                    String elemName = elem.getValue0();
-                    return !forbiddenValues.contains(elemName);
-                })
-                .collect(Collectors.toList());
+        return parameters;
     }
 
     /**
@@ -366,83 +291,39 @@ public class BertTranslator implements Translator<String, Classifications> {
      * @return indexed tokens
      */
     private List<Triplet<String, Integer, Integer>> indexTokens(List<String> tokens, String input) {
-//        Idea is searching for token in original text. The main problem is:
-//              There can be small variables values like "a", "b", "c" and etc.
-//                    They can be net anywhere. Let's say, we have parameters "var" and "a".
-//                    "a" is found in both of them
-//        Solution is creating a mask that will check where variables are already found.
-
-//        Create mask of input length
-        Integer[] mask = new Integer[input.length()];
-        Arrays.fill(mask, 0);
+//        The idea is searching for token in original text. We take tokens without G, search
+//        them in original text and remember them in recognizable format by model: <name, startIndex, endIndex>
 
 //        Remove from tokens Ġ. After that create a map that will represent
 //        token with it's amount of occurrences. The tokens are sorted, so we can be sure that
 //        there will not be overlap in searches.
-        List<Triplet<String, Integer, Integer>> finalTokens = new ArrayList<>();
-        Map<String, Long> tokenCount = tokens
+        List<String> noGTokens = tokens
                 .stream()
                 .map(elem -> elem.replaceAll("Ġ", ""))
-                .collect(
-                        Collectors.groupingBy(Function.identity(),
-                                LinkedHashMap::new,
-                                Collectors.counting())
-                );
-
-//        For each met unique token start searching for it's positions
-        for (Map.Entry<String, Long> entry : tokenCount.entrySet()) {
-//            Some variable can be met several times (lots of times)
-            String key = entry.getKey().trim();
-            Long value = entry.getValue();
-            int counter = 1;
-            while (counter <= value) {
-//                ordinalIndex finds the n-th index inside a String
-                int start = StringUtils.ordinalIndexOf(input, key, counter);
-                int end = start + key.length();
-//                Get the borders of a token and check if
-//                it is possible to increase value in this borders
-                if (canBeIncreased(mask, start, end)) {
-//                    If so, then needed token is found. Add it to results and increase values in found borders
-                    Triplet<String, Integer, Integer> elem = new Triplet<>(key, start, end);
-                    finalTokens.add(elem);
-                    increaseValues(mask, start, end);
-                }
-//                Do this for all findings.
-                counter += 1;
+                .collect(Collectors.toList());
+        int tokenStart = 0;
+        List<Triplet<String, Integer, Integer>> finalTokens = new ArrayList<>();
+        for (String token : noGTokens) {
+            int currentInd = input.indexOf(token);
+//            Check if everything is Ok.
+            if (currentInd != -1) {
+                tokenStart += currentInd;
+                int tokenEnd = tokenStart + token.length();
+                Triplet<String, Integer, Integer> elem = new Triplet<>(token, tokenStart, tokenEnd);
+                finalTokens.add(elem);
+//                There are symbols that are accounted as special. For example: "=("
+//                Such substring should be represented as "=\("
+                token = token.replaceAll("[^a-zA-Z0-9]", "\\\\$0");
+//                Remove from original string found occurrence
+                input = input.replaceFirst(token, "");
+                if (input.charAt(0) == ' ')
+                    input = input.replaceFirst(" ", "");
+                tokenStart = tokenEnd + 1;
             }
         }
-//        Finally, sort tokens
+//        Finally, sort tokens by their order
         finalTokens.sort(Comparator.comparing(Triplet::getValue1));
         return finalTokens;
-    }
-
-    /**
-     * Method for checking if values of mask can be increased within defined borders.
-     * Was not implemented with true/false, because it was harder...
-     *
-     * @param arr   the mask itself.
-     * @param start token start. In triplet represents the second value.
-     * @param end   token end. In triplet represents the third value.
-     * @return true if can be increased. Otherwise false.
-     * Can be increased if all values within borders are 0's
-     */
-    private boolean canBeIncreased(Integer[] arr, int start, int end) {
-        if (start < 0)
-            return false;
-        return IntStream.range(start, end).noneMatch(i -> arr[i] + 1 > 1);
-    }
-
-    /**
-     * If token is met and it's borders suit the mask, then increase values within this borders.
-     *
-     * @param arr   mask to be increased.
-     * @param start token start. In triplet represents the second value.
-     * @param end   token start. In triplet represents the second value.
-     */
-    private void increaseValues(Integer[] arr, int start, int end) {
-        if (start < 0)
-            return;
-        IntStream.range(start, end).forEach(i -> arr[i] += 1);
     }
 
     /**
@@ -455,6 +336,7 @@ public class BertTranslator implements Translator<String, Classifications> {
     private boolean[] createIDMask(List<Triplet<String, Integer, Integer>> allTokens,
                                    List<Triplet<String, Integer, Integer>> tokensForParameters) {
 //        Default mask is filled with false
+        allTokens = allTokens.stream().filter(elem -> !elem.getValue0().equals("")).collect(Collectors.toList());
         boolean[] mask = new boolean[GlobalProjectInstances.BERT_LIMITATION];
         Arrays.fill(mask, false);
 //        For all found parameters

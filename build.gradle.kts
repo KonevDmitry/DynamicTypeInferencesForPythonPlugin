@@ -20,7 +20,6 @@ plugins {
 }
 
 val pluginGroup: String by project
-// issue: https://github.com/JetBrains/intellij-platform-plugin-template/issues/29
 val pluginName: String by project
 val pluginVersion: String by project
 val pluginSinceBuild: String by project
