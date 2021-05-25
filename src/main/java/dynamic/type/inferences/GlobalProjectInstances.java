@@ -7,6 +7,7 @@ import kotlin.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -19,18 +20,27 @@ import java.util.stream.Collectors;
 public final class GlobalProjectInstances {
 
     // Lots of static variables
-    public static final String MODEL_NAME = "/eeee.pt";
+    public static final String PATH_SEPARATOR = File.separator;
+    public static final String MODEL_NAME = PATH_SEPARATOR + "eeee.pt";
     public static final String MODEL_PATH = PathManager.getConfigPath() + MODEL_NAME;
     public static final Integer MAX_VALUES_TO_SHOW = 5;
     public static final Integer BERT_LIMITATION = 512;
     @NotNull
-    public static final URL URL_VOCAB = Objects.requireNonNull(GlobalProjectInstances.class.getClassLoader().getResource("/data/torchBERT/vocab.txt"));
+    public static final URL URL_VOCAB =
+            Objects.requireNonNull(GlobalProjectInstances.class.getClassLoader()
+                    .getResource(String.format("%1$sdata%1$storchBERT%1$svocab.txt", PATH_SEPARATOR)));
     @NotNull
-    public static final URL URL_RANKS = Objects.requireNonNull(GlobalProjectInstances.class.getClassLoader().getResource("/data/torchBERT/modelRanks.txt"));
+    public static final URL URL_RANKS =
+            Objects.requireNonNull(GlobalProjectInstances.class.getClassLoader()
+                    .getResource(String.format("%1$sdata%1$storchBERT%1$smodelRanks.txt", PATH_SEPARATOR)));
     @NotNull
-    public static final URL URL_TOKEN = Objects.requireNonNull(GlobalProjectInstances.class.getClassLoader().getResource("/data/torchBERT/token"));
+    public static final URL URL_TOKEN =
+            Objects.requireNonNull(GlobalProjectInstances.class.getClassLoader()
+                    .getResource(String.format("%1$sdata%1$storchBERT%1$stoken", PATH_SEPARATOR)));
     @NotNull
-    public static final URL URL_BPE_RANKS = Objects.requireNonNull(GlobalProjectInstances.class.getClassLoader().getResource("/data/torchBERT/gpt2Merges.txt"));
+    public static final URL URL_BPE_RANKS =
+            Objects.requireNonNull(GlobalProjectInstances.class.getClassLoader()
+                    .getResource(String.format("%1$sdata%1$storchBERT%1$sgpt2Merges.txt", PATH_SEPARATOR)));
 
     public static final String NEW_LINE = "<br/>";
     public static final String BOLD_START = "<b>";

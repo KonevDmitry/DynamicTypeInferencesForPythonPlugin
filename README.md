@@ -106,8 +106,11 @@ for next functions:
 This plugin uses BERT model that analyses the code of functions and 
 returns top-5 most probable types for each function parameter. It can help in several ways:
 1) Documentation providing for mouse hoverboard and ctrl+q actions:
+
 ![Example](https://media.giphy.com/media/Pg0RuS2frxFjebsHgW/giphy.gif)
+   
 2) Type hinting
+
 ![Example](https://media.giphy.com/media/qpXvotoDsbZaTsBMjZ/giphy.gif)
 
 ### Attention!!!
