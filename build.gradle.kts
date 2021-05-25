@@ -88,15 +88,19 @@ tasks {
         sourceCompatibility = "11"
         targetCompatibility = "11"
     }
+    withType<KotlinCompile>{
+        sourceCompatibility = "11"
+        targetCompatibility = "11"
+    }
     listOf("compileKotlin", "compileTestKotlin").forEach {
         getByName<KotlinCompile>(it) {
             kotlinOptions.jvmTarget = "11"
         }
     }
 
-    withType<Detekt> {
-        jvmTarget = "11"
-    }
+//    withType<Detekt> {
+//        jvmTarget = "11"
+//    }
 
     patchPluginXml {
         version(pluginVersion)
