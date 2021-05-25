@@ -12,7 +12,7 @@ class GPT2Tokenizer(
         val tokens = encodeRegex.findAll(text).map { result ->
             result.value.codePoints()
                 .boxed()
-                .map { byteEncoder[it]!! }
+                .map { byteEncoder[it] }
                 .toArray()
                 .joinToString("")
         }
