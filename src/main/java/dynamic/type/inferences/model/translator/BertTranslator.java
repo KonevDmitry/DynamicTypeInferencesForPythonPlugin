@@ -16,7 +16,7 @@ import com.intellij.navigation.NavigationItem;
 import com.jetbrains.python.psi.PyFunction;
 import dynamic.type.inferences.GlobalProjectInstances;
 import dynamic.type.inferences.model.runner.tokenizer.ModelBertFullTokenizer;
-import dynamic.type.inferences.model.tfLite.GPT2Tokenizer;
+import tfLite.GPT2Tokenizer;
 import org.javatuples.Triplet;
 
 import java.io.IOException;

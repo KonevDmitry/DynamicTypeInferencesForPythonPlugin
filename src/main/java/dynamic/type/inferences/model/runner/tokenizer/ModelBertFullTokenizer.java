@@ -4,7 +4,7 @@ import ai.djl.modality.nlp.SimpleVocabulary;
 import ai.djl.modality.nlp.bert.BertToken;
 import ai.djl.modality.nlp.preprocess.SimpleTokenizer;
 import dynamic.type.inferences.GlobalProjectInstances;
-import dynamic.type.inferences.model.tfLite.GPT2Tokenizer;
+import tfLite.GPT2Tokenizer;
 import kotlin.Pair;
 
 import java.io.IOException;

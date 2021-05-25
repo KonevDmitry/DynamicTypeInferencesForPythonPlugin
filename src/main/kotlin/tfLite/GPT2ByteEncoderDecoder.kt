@@ -1,4 +1,4 @@
-package dynamic.type.inferences.model.tfLite
+package tfLite
 
 // Code below is taken and adapted from
 // https://github.com/huggingface/tflite-android-transformers/blob/master/gpt2/src/main/java/co/huggingface/android_transformers/gpt2/tokenization/GPT2ByteEncoderDecoder.kt
