@@ -7,6 +7,7 @@ import kotlin.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -21,19 +22,20 @@ public final class GlobalProjectInstances {
     // Lots of static variables
 
     public static final String MODEL_NAME = "/eeee.pt";
-    public static final String MODEL_PATH = PathManager.getConfigPath() + MODEL_NAME;
-    public static final String MODEL_PATH_FOR_PRINT = MODEL_PATH.contains(":\\\\") ?
-            "file:///" + PathManager.getAbsolutePath(MODEL_PATH): MODEL_PATH;
+    private static final String MODEL_PATH = PathManager.getConfigPath() + MODEL_NAME;
+//    The path below is done so because of Windows case when DJL is not able to find path as string.
+//    For checking if file exists or showing it in settings we replace first occurrence of "file:/"
+    public static final String MODEL_PATH_FOR_WORK = new File(PathManager.getAbsolutePath(MODEL_PATH)).toURI().toString();
     public static final Integer MAX_VALUES_TO_SHOW = 5;
     public static final Integer BERT_LIMITATION = 512;
     @NotNull
     public static final URL URL_VOCAB = Objects.requireNonNull(GlobalProjectInstances.class.getClassLoader().getResource("/data/torchBERT/vocab.txt"));
     @NotNull
-    public static final URL URL_RANKS = Objects.requireNonNull(GlobalProjectInstances.class.getClassLoader().getResource("/data/torchBERT/modelRanks.txt"));
+    private static final URL URL_RANKS = Objects.requireNonNull(GlobalProjectInstances.class.getClassLoader().getResource("/data/torchBERT/modelRanks.txt"));
     @NotNull
     public static final URL URL_TOKEN = Objects.requireNonNull(GlobalProjectInstances.class.getClassLoader().getResource("/data/torchBERT/token"));
     @NotNull
-    public static final URL URL_BPE_RANKS = Objects.requireNonNull(GlobalProjectInstances.class.getClassLoader().getResource("/data/torchBERT/gpt2Merges.txt"));
+    private static final URL URL_BPE_RANKS = Objects.requireNonNull(GlobalProjectInstances.class.getClassLoader().getResource("/data/torchBERT/gpt2Merges.txt"));
 
     public static final String NEW_LINE = "<br/>";
     public static final String BOLD_START = "<b>";

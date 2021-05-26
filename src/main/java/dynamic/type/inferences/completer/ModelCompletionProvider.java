@@ -249,7 +249,7 @@ public class ModelCompletionProvider extends CompletionProvider<CompletionParame
                                         notification.createErrorNotification().notify(project);
                                         try {
                                             BertModelLoader loader = new BertModelLoader(sharedObject);
-                                            loader.loadTo(GlobalProjectInstances.MODEL_PATH_FOR_PRINT);
+                                            loader.loadTo();
                                             synchronized (sharedObject) {
                                                 torchBert.setInitialized(true);
                                             }

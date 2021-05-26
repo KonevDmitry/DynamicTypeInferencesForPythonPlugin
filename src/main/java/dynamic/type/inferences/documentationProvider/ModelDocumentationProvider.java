@@ -98,7 +98,7 @@ public class ModelDocumentationProvider implements DocumentationProvider {
                     // Never should happen in normal situation, just in case
                     try {
                         Notifications.Bus.notify(notification.createErrorNotification());
-                        loader.loadTo(GlobalProjectInstances.MODEL_PATH_FOR_PRINT);
+                        loader.loadTo();
                         synchronized (sharedObject) {
                             torchBertInstance.setInitialized(true);
                         }

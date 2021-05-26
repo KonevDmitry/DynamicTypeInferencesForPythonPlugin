@@ -38,7 +38,7 @@ public class ModelApplicationSettingsComponent {
         JLabel jLabelEmpty = new JBLabel(HTML_BOLD_START + "Recognizable types by VaDima: " + HTML_BOLD_END);
         JLabel jLabelModelPath = new JBLabel(
                 HTML_BOLD_START + "VaDima model path: " +
-                        HTML_BOLD + GlobalProjectInstances.MODEL_PATH_FOR_PRINT + HTML_END);
+                        HTML_BOLD + GlobalProjectInstances.MODEL_PATH_FOR_WORK.replaceFirst("file:/", "") + HTML_END);
 
         jLabelEmpty.setBorder(BorderFactory.createEmptyBorder(INDENT, 0, INDENT, 0));
         jLabelModelPath.setBorder(BorderFactory.createEmptyBorder(INDENT, 0, INDENT, 0));

@@ -24,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -97,12 +98,12 @@ public class TorchBert {
 //            All processes are run at start-up including checking if the model is loaded.
 //            If model exists - do needed work: create predictor (instance for predicting)
 //            and notify threads about model preparedness
-            File modelFile = new File(GlobalProjectInstances.MODEL_PATH_FOR_PRINT);
+            File modelFile = new File(GlobalProjectInstances.MODEL_PATH_FOR_WORK.replaceFirst("file:/", ""));
             if (modelFile.exists()) {
                 createPredictorAndSetInitialized();
             } else {
 //                If there is no model - firstly load it and do the same as written above
-                loader.loadTo(GlobalProjectInstances.MODEL_PATH_FOR_PRINT);
+                loader.loadTo();
                 synchronized (sharedObject) {
                     createPredictorAndSetInitialized();
                 }
@@ -145,14 +146,14 @@ public class TorchBert {
 //            more details in class itself.
             ModelBertFullTokenizer tokenizer = new ModelBertFullTokenizer(vocabulary);
             bertTranslator = new BertTranslator(tokenizer);
-
+;
 //            Define criteria for DJL model initialization
             Criteria<String, Classifications> criteria =
                     Criteria.builder()
                             .optApplication(Application.NLP.SENTIMENT_ANALYSIS)
                             .optDevice(Device.cpu())
                             .setTypes(String.class, Classifications.class)
-                            .optModelUrls(GlobalProjectInstances.MODEL_PATH_FOR_PRINT)
+                            .optModelUrls(GlobalProjectInstances.MODEL_PATH_FOR_WORK)
                             .optTranslator(bertTranslator)
                             .build();
 //            Finally, create model and it's predictor.
@@ -162,7 +163,7 @@ public class TorchBert {
 //            Finally, default DJL config defines that config can be wrong.
 //            This never should happen, but if something will go wrong -> reload model and try
 //            one more time to define predictor.
-            loader.loadTo(GlobalProjectInstances.MODEL_PATH_FOR_PRINT);
+            loader.loadTo();
             synchronized (sharedObject) {
                 createPredictorAndSetInitialized();
             }

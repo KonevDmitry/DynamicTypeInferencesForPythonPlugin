@@ -114,7 +114,10 @@ returns top-5 most probable types for each function parameter. It can help in se
 ![Example](https://media.giphy.com/media/qpXvotoDsbZaTsBMjZ/giphy.gif)
 
 ### Attention!!!
-Plugin downloads BERT model and takes **475,9 mb** of free space. Suggested types and some other options can be found in
+1) After model load wait a bit while needed libraries for model launch will be loaded. We cannot handle these process and
+check when they will be loaded. If something went wrong - reload your PyCharm
+
+2) Plugin downloads BERT model and takes **475,9 mb** of free space. Suggested types and some other options can be found in
 plugin settings: 
 ![Settings](https://imgur.com/rsdR55A.jpg)
 <!-- Plugin description end -->

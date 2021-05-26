@@ -24,14 +24,14 @@ public class BertModelLoader {
     }
 
     /**
-     * Loading model to specified path. Can be used for someone if he/she will have a wish
+     * Loading model to default path. Can be used for someone if he/she will have a wish
      * to load a model to a special path (can be used in a future). Parameters:
      *
-     * @param pathToLoad where to load a model.
      * @throws IOException  exception is throw if a by magic reason token not read
      * @throws DbxException DropBox problems
      */
-    public void loadTo(String pathToLoad) throws IOException, DbxException {
+    public void loadTo() throws IOException, DbxException {
+        String pathToLoad = GlobalProjectInstances.MODEL_PATH_FOR_WORK.replaceFirst("file:/", "");
 //         Model loading process with connection to DropBox api
         DbxRequestConfig config = new DbxRequestConfig("BertModelLoader");
 
