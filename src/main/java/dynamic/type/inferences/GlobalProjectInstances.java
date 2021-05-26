@@ -19,13 +19,16 @@ import java.util.stream.Collectors;
  */
 public final class GlobalProjectInstances {
 
-    // Lots of static variables
+//    Lots of static variables
 
     public static final String MODEL_NAME = "/eeee.pt";
     private static final String MODEL_PATH = PathManager.getConfigPath() + MODEL_NAME;
 //    The path below is done so because of Windows case when DJL is not able to find path as string.
 //    For checking if file exists or showing it in settings we replace first occurrence of "file:/"
-    public static final String MODEL_PATH_FOR_WORK = new File(PathManager.getAbsolutePath(MODEL_PATH)).toURI().toString();
+//    Also, path can contain whitespaces, which dropBox loader cannot handle
+//    (or this is output stream issue, which we did not manage to solve)
+    public static final String MODEL_PATH_FOR_WORK =
+            new File(PathManager.getAbsolutePath(MODEL_PATH)).toURI().getPath().replaceAll(" ", "");
     public static final Integer MAX_VALUES_TO_SHOW = 5;
     public static final Integer BERT_LIMITATION = 512;
     @NotNull

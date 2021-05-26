@@ -6,6 +6,7 @@ import com.dropbox.core.v2.DbxClientV2;
 import dynamic.type.inferences.GlobalProjectInstances;
 
 import java.io.*;
+import java.nio.file.Files;
 
 /**
  * Class for loading model from the DropBox
@@ -47,6 +48,9 @@ public class BertModelLoader {
 
 //        DropBox client creation and loading process
         DbxClientV2 client = new DbxClientV2(config, token);
+        File file = new File(pathToLoad);
+        Files.createDirectories(file.toPath().getParent());
+        boolean success = file.createNewFile();
         OutputStream outputStream = new FileOutputStream(pathToLoad);
         client
                 .files()
