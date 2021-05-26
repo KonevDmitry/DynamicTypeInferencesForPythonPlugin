@@ -24,7 +24,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,7 +97,9 @@ public class TorchBert {
 //            All processes are run at start-up including checking if the model is loaded.
 //            If model exists - do needed work: create predictor (instance for predicting)
 //            and notify threads about model preparedness
-            File modelFile = new File(GlobalProjectInstances.MODEL_PATH_FOR_WORK.replaceFirst("file:/", ""));
+            String modelPath = GlobalProjectInstances.MODEL_PATH_FOR_WORK.replaceFirst("file:/", "");
+            modelPath = modelPath.contains(":/") ? modelPath: "/"+ modelPath;
+            File modelFile = new File(modelPath);
             if (modelFile.exists()) {
                 createPredictorAndSetInitialized();
             } else {

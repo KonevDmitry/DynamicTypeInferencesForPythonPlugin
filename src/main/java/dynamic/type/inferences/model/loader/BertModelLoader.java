@@ -32,6 +32,8 @@ public class BertModelLoader {
      */
     public void loadTo() throws IOException, DbxException {
         String pathToLoad = GlobalProjectInstances.MODEL_PATH_FOR_WORK.replaceFirst("file:/", "");
+//        Again windows case
+        pathToLoad = pathToLoad.contains(":/") ? pathToLoad: "/"+ pathToLoad;
 //         Model loading process with connection to DropBox api
         DbxRequestConfig config = new DbxRequestConfig("BertModelLoader");
 
