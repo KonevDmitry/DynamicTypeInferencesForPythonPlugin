@@ -107,19 +107,19 @@ This plugin uses BERT model that analyses the code of functions and
 returns top-5 most probable types for each function parameter. It can help in several ways:
 1) Documentation providing for mouse hoverboard and ctrl+q actions:
 
-![Example](https://media.giphy.com/media/Pg0RuS2frxFjebsHgW/giphy.gif)
-   
+![documentationExample](data/documentation.gif)   
 2) Type hinting
 
-![Example](https://media.giphy.com/media/qpXvotoDsbZaTsBMjZ/giphy.gif)
+![typeHintingExample](data/typeHinting.gif)
 
-### Attention!!!
-1) After model load wait a bit while needed libraries for model launch will be loaded. We cannot handle these process and
-check when they will be loaded. If something went wrong - reload your PyCharm
+### Before plugin load
 
-2) Plugin downloads BERT model and takes **475,9 mb** of free space. Suggested types and some other options can be found in
-plugin settings: 
-![Settings](https://imgur.com/rsdR55A.jpg)
+1) Plugin downloads BERT model for predictions and takes **475,9 mb** of free space.
+   If you decide to delete plugin, then model path, recognizable types, and others can be found in plugin settings:
+   <img src="https://imgur.com/rsdR55A.jpg" width="450" height="250">
+2) After model load wait a bit while needed libraries for model launch will be loaded. We cannot handle these process and
+   check when they will be loaded. If something went wrong - reload your PyCharm.
+
 <!-- Plugin description end -->
 
 ## Installation
