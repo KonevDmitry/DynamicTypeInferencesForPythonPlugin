@@ -4,6 +4,24 @@
 [![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/VaDima)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/VaDima)
 
+
+### Before plugin load
+
+1) Plugin downloads BERT model for predictions<br/> and takes **475,9 mb** of free space.
+   <br/>If you decide to delete plugin, then model path, <br/>recognizable types, and others <br/>can be found in plugin settings:
+   <br/><br/>
+   <img src="https://imgur.com/rsdR55A.jpg" width="350" height="200">
+2) After model load wait a bit while needed libraries for model<br/> launch will be loaded. We cannot handle<br/> these process and
+   check when they will be loaded.<br/> If something went wrong - reload your PyCharm.
+   
+This plugin uses BERT model that analyses the code of <br/>functions and
+returns top-5 most probable types <br/>for each function parameter. It can help in several ways:
+1) **Documentation providing for mouse hoverboard <br/>and ctrl+q actions:**
+<img src="https://media.giphy.com/media/Pg0RuS2frxFjebsHgW/giphy.gif"/>
+
+2) **Type hinting**
+<img src="https://media.giphy.com/media/qpXvotoDsbZaTsBMjZ/giphy.gif"/>
+   
 ## Plugin principles of work
 
 When the user installs the plugin, the model is downloaded to the plugin config folder. By default, this is PyCharm
@@ -108,19 +126,17 @@ This plugin uses BERT model that analyses the code of <br/>functions and
 returns top-5 most probable types <br/>for each function parameter. It can help in several ways:
 1) **Documentation providing for mouse hoverboard <br/>and ctrl+q actions:**
 <br/>
-![documentationExample](data/documentation.gif)  
-<img src="https://media.giphy.com/media/Pg0RuS2frxFjebsHgW/giphy.gif" width="50" height="50" />
+<img src="https://imgur.com/a/g3k5Jbm.jpg" width="350" height="200">
 
 2) **Type hinting**
 <br/>
-![typeHintingExample](data/typeHinting.gif)
-<img src="https://media.giphy.com/media/qpXvotoDsbZaTsBMjZ/giphy.gif" width="50" height="50" />
+<img src="https://imgur.com/HsVMOCr.jpg" width="350" height="600">
 ### Before plugin load
 
 1) Plugin downloads BERT model for predictions<br/> and takes **475,9 mb** of free space.
    <br/>If you decide to delete plugin, then model path, <br/>recognizable types, and others <br/>can be found in plugin settings:
    <br/><br/>
-   <img src="https://imgur.com/rsdR55A.jpg" width="350" height="200">
+   <img src="https://imgur.com/rsdR55A.jpg" width="500" height="500">
 2) After model load wait a bit while needed libraries for model<br/> launch will be loaded. We cannot handle<br/> these process and
    check when they will be loaded.<br/> If something went wrong - reload your PyCharm.
 
