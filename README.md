@@ -126,7 +126,7 @@ This plugin uses BERT model that analyses the code of <br/>functions and
 returns top-5 most probable types <br/>for each function parameter. It can help in several ways:
 1) **Documentation providing for mouse hoverboard <br/>and ctrl+q actions:**
 <br/>
-<img src="https://imgur.com/rn204eO.jpg" width="500" height="400">
+<img src="https://imgur.com/rn204eO.jpg" width="500" height="200">
 
 2) **Type hinting**
 <br/>
