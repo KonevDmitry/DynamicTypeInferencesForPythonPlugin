@@ -108,15 +108,13 @@ This plugin uses BERT model that analyses the code of <br/>functions and
 returns top-5 most probable types <br/>for each function parameter. It can help in several ways:
 1) **Documentation providing for mouse hoverboard <br/>and ctrl+q actions:**
 <br/>
-[comment]: <> (![documentationExample]&#40;data/documentation.gif&#41;  )
-[comment]: <> (![Example]&#40;https://media.giphy.com/media/Pg0RuS2frxFjebsHgW/giphy.gif&#41;)
-<img src="https://media.giphy.com/media/Pg0RuS2frxFjebsHgW/giphy.gif" width="350" height="200" />
+![documentationExample](data/documentation.gif)  
+<img src="https://media.giphy.com/media/Pg0RuS2frxFjebsHgW/giphy.gif" width="50" height="50" />
 
 2) **Type hinting**
 <br/>
-[comment]: <> (![typeHintingExample]&#40;data/typeHinting.gif&#41;)
-[comment]: <> (![Example]&#40;https://media.giphy.com/media/qpXvotoDsbZaTsBMjZ/giphy.gif&#41;)
-<img src="https://media.giphy.com/media/qpXvotoDsbZaTsBMjZ/giphy.gif" width="350" height="200" />
+![typeHintingExample](data/typeHinting.gif)
+<img src="https://media.giphy.com/media/qpXvotoDsbZaTsBMjZ/giphy.gif" width="50" height="50" />
 ### Before plugin load
 
 1) Plugin downloads BERT model for predictions<br/> and takes **475,9 mb** of free space.
