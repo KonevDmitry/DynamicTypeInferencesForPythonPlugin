@@ -1,4 +1,3 @@
-//import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.changelog.closure
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -11,12 +10,9 @@ buildscript {
     }
 }
 plugins {
-    // Java support
-    id("java")
     id("org.jetbrains.kotlin.jvm") version "1.4.0"
     id("org.jetbrains.intellij") version "0.6.5"
     id("org.jetbrains.changelog") version "0.4.0"
-//    id("io.gitlab.arturbosch.detekt") version "1.11.0"
 }
 
 val pluginGroup: String by project
@@ -46,7 +42,6 @@ repositories {
 dependencies {
     implementation("org.junit.jupiter:junit-jupiter:5.4.2")
     implementation("org.jetbrains:annotations:20.1.0")
-//    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.11.0")
 
     testImplementation(kotlin("test-junit"))
     implementation("org.apache.commons:commons-csv:1.8")
@@ -78,8 +73,6 @@ intellij {
     type = platformType
     downloadSources = platformDownloadSources.toBoolean()
     updateSinceUntilBuild = true
-//    setPlugins(*platformPlugins.split(',').map(String::trim).filter(String::isNotEmpty).toTypedArray())
-//    setPlugins("Pythonid:${buildVersion}")
     setPlugins("python")
 }
 
@@ -94,10 +87,6 @@ tasks {
             kotlinOptions.jvmTarget = "11"
         }
     }
-
-//    withType<Detekt> {
-//        jvmTarget = "11"
-//    }
 
     patchPluginXml {
         version(pluginVersion)
