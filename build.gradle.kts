@@ -105,15 +105,10 @@ tasks {
             }
         )
 
-        changeNotes(
-            closure {
-                changelog.getLatest().toHTML()
-            }
-        )
+        changeNotes("VaDima release")
     }
 
     publishPlugin {
-        dependsOn("patchChangelog")
         token(System.getenv("PUBLISH_TOKEN"))
         channels(pluginVersion.split('-').getOrElse(1) { "default" }.split('.').first())
     }

@@ -96,7 +96,6 @@ output of the model are possible types of variables that after are passed to alr
 Documentation.
 
 <!-- Plugin description -->
-### Function type annotations
 Tired of undocumented code?<br/> Always spend a lot of time reading strange code?<br/>
 Always have to look at "deep dark secrets"?
 
@@ -120,7 +119,6 @@ returns top-5 most probable types <br/>for each function parameter. It can help 
 <br/>
 <img src="https://imgur.com/HsVMOCr.jpg" width="500" height="600">
    
-
 ### Before plugin load
 
 1) Plugin downloads BERT model for predictions<br/> and takes **475,9 mb** of free space.
