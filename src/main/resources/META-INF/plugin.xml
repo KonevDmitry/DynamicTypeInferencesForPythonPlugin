@@ -7,6 +7,7 @@ The solution was PyCharm reloading.-->
     <depends>com.intellij.modules.python</depends>
     <vendor email="Konev1999D@gmail.com">VaDima</vendor>
     <version>1.0.0</version>
+    <change-notes>VaDima release</change-notes>
     <description><![CDATA[
         <p>
             <a href="https://github.com/KonevDmitry/DynamicTypeInferencesForPythonPlugin"><img src="https://imgur.com/lPJjieG" alt="Github Repo"></a>&nbsp;
@@ -40,7 +41,6 @@ The solution was PyCharm reloading.-->
              <p>If something went wrong - reload your PyCharm.</p>
    </p>
 ]]></description>
-    <change-notes>Release.</change-notes>
     <!--    it will exist until the end of humanity...-->
     <idea-version since-build="203.5981.165" until-build="300.*"/>
     <resource-bundle>messages.MyBundle</resource-bundle>
