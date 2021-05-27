@@ -127,7 +127,6 @@ returns top-5 most probable types <br/>for each function parameter. It can help 
    <img src="https://imgur.com/rsdR55A.jpg" width="500" height="500">
 2) After model load wait a bit while needed libraries for model<br/> launch will be loaded. We cannot handle<br/> these process and
    check when they will be loaded.<br/> If something went wrong - reload your PyCharm.
-
 <!-- Plugin description end -->
 
 ## Installation
