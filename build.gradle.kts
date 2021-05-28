@@ -105,7 +105,11 @@ tasks {
             }
         )
 
-        changeNotes("VaDima release")
+        changeNotes(
+            closure {
+                changelog.getLatest().toHTML()
+            }
+        )
     }
 
     publishPlugin {

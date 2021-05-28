@@ -27,18 +27,20 @@ The solution was PyCharm reloading.-->
             <p>This plugin uses BERT model that analyses the code of functions and
             returns top-5 most probable types for each function parameter. It can help in several ways:</p>
             <p>1) Documentation providing for mouse hoverboard and ctrl+q actions:</p>
+            </br>
             <img src="https://imgur.com/rn204eO.jpg" width="500" height="200">
 
             <p>2) Type hinting:</p>
+            </br>
             <img src="https://imgur.com/HsVMOCr.jpg" width="500" height="600">
 
             <p>1) Plugin downloads BERT model for predictions and takes 475,9 mb of free space.</p>
                <p>If you decide to delete plugin, then model path, recognizable types, and others can be found in plugin settings:</p>
-
+               </br>
                <img src="https://imgur.com/rsdR55A.jpg" width="500" height="500">
             <p>2) After model load wait a bit while needed libraries for model launch will be loaded.</p>
             <p>We cannot handle these process and check when they will be loaded.</p>
-             <p>If something went wrong - reload your PyCharm.</p>
+            <p>If something went wrong - reload your PyCharm.</p>
    </p>
 ]]></description>
     <!--    it will exist until the end of humanity...-->
