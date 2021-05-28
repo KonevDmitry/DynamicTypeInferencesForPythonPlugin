@@ -97,37 +97,28 @@ Documentation.
 
 ### Plugin description
 <!-- Plugin description -->
-Tired of undocumented code?<br/> Always spend a lot of time reading strange code?<br/>
-Always have to look at "deep dark secrets"?
+Tired of undocumented code? Always spend a lot of time reading strange code? Always have to look at "deep dark secrets"?
 
-**VaDima** is a solution!
-
-VaDima is a plugin that can help you to deal with functions that<br/>
-were written by you and other people. <br/>
-Using the most modern Machine Learning techniques it <br/>suggests the types of variables
-for next functions:
+VaDima is a plugin that can help you to deal with Python 3 functions that were written by you and other people.
+Using the most modern Machine Learning techniques it suggests the types of variables for next functions:
 * Written by you 
 * Python build-in
 * From libraries
 
-This plugin uses BERT model that analyses the code of <br/>functions and 
-returns top-5 most probable types <br/>for each function parameter. It can help in several ways:
+Supported all versions of Python3 language. We use BERT model that analyses the code of functions and 
+returns top-5 most probable types for each function parameter. It can help in several ways:
 1) **Documentation providing for mouse hoverboard <br/>and ctrl+q actions:**
-<br/>
 <img src="https://imgur.com/rn204eO.jpg" width="500" height="200">
 
 2) **Type hinting**
-<br/>
 <img src="https://imgur.com/HsVMOCr.jpg" width="500" height="600">
    
 ### Before plugin load
-
-1) Plugin downloads BERT model for predictions<br/> and takes **475,9 mb** of free space.
-   <br/>If you decide to delete plugin, then model path, <br/>recognizable types, and others <br/>can be found in plugin settings:
-   <br/><br/>
+1) Plugin downloads BERT model for predictions and takes **475,9 mb** of free space.
+   If you decide to delete plugin, then model path, recognizable types, and others can be found in plugin settings:
    <img src="https://imgur.com/rsdR55A.jpg" width="500" height="500">
-2) After model load wait a bit while needed libraries for model<br/> launch will be loaded. We cannot handle<br/> these process and
-   check when they will be loaded.<br/> If something went wrong - reload your PyCharm.
+2) After model load wait a bit while needed libraries for model launch will be loaded. We cannot handle these process and
+   check when they will be loaded. If something went wrong - reload your PyCharm.
 <!-- Plugin description end -->
 
 ## Installation
