@@ -1,8 +1,6 @@
-# VaDima
+# VaDima [![Version](https://github.com/KonevDmitry/DynamicTypeInferencesForPythonPlugin/blob/master/src/main/resources/META-INF/pluginIcon25.svg)](https://plugins.jetbrains.com/plugin/16883-vadima)
 
 ![Build](https://github.com/KonevDmitry/DynamicTypeInferencesForPythonPlugin/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/VaDima)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/VaDima)
 
 
 ### Before plugin load
