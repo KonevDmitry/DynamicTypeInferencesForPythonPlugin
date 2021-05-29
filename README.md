@@ -1,4 +1,4 @@
-# VaDima [![Version](https://github.com/KonevDmitry/DynamicTypeInferencesForPythonPlugin/blob/master/src/main/resources/META-INF/pluginIcon25.svg)](https://plugins.jetbrains.com/plugin/16883-vadima)
+# [![Version](https://github.com/KonevDmitry/DynamicTypeInferencesForPythonPlugin/blob/master/src/main/resources/META-INF/pluginIcon25.svg)](https://plugins.jetbrains.com/plugin/16883-vadima) VaDima
 
 Plugin is available via icon click above or link: [VaDima](https://plugins.jetbrains.com/plugin/16883-vadima)
 ### Before plugin load
@@ -120,8 +120,7 @@ returns top-5 most probable types for each function parameter. It can help in se
 
 - Using IDE built-in plugin system:
 
-  <kbd>Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "
-  DynamicTypeInferencesForPythonPlugin"</kbd> >
+  <kbd>Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "VaDima"</kbd> >
   <kbd>Install Plugin</kbd>
 
 - Manually:
