@@ -1,10 +1,7 @@
 # VaDima [![Version](https://github.com/KonevDmitry/DynamicTypeInferencesForPythonPlugin/blob/master/src/main/resources/META-INF/pluginIcon25.svg)](https://plugins.jetbrains.com/plugin/16883-vadima)
 
-![Build](https://github.com/KonevDmitry/DynamicTypeInferencesForPythonPlugin/workflows/Build/badge.svg)
-
-
+Plugin is available via icon click above or link: [VaDima](https://plugins.jetbrains.com/plugin/16883-vadima)
 ### Before plugin load
-
 1) Plugin downloads BERT model for predictions<br/> and takes **475,9 mb** of free space.
    <br/>If you decide to delete plugin, then model path, <br/>recognizable types, and others <br/>can be found in plugin settings:
    <br/><br/>
@@ -106,15 +103,15 @@ Using the most modern Machine Learning techniques it suggests the types of varia
 Supported all versions of Python3 language. We use BERT model that analyses the code of functions and 
 returns top-5 most probable types for each function parameter. It can help in several ways:
 1) **Documentation providing for mouse hoverboard <br/>and ctrl+q actions:**
-<img src="https://imgur.com/rn204eO.jpg" width="500" height="200">
+<img src="https://imgur.com/rn204eO.jpg" width="750" height="300">
 
 2) **Type hinting**
-<img src="https://imgur.com/HsVMOCr.jpg" width="500" height="600">
+<img src="https://imgur.com/HsVMOCr.jpg" width="600" height="600">
    
 ### Before plugin load
 1) Plugin downloads BERT model for predictions and takes **475,9 mb** of free space.
    If you decide to delete plugin, then model path, recognizable types, and others can be found in plugin settings:
-   <img src="https://imgur.com/rsdR55A.jpg" width="500" height="500">
+   <img src="https://imgur.com/rsdR55A.jpg" width="800" height="500">
 2) After model load wait a bit while needed libraries for model launch will be loaded. We cannot handle these process and
    check when they will be loaded. If something went wrong - reload your PyCharm.
 <!-- Plugin description end -->
